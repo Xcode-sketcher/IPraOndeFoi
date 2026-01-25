@@ -1,0 +1,161 @@
+<div class="fade-in space-y-8" @fadeIn>
+  <!-- Header -->
+  <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-(--text-primary)">Metas Financeiras</h1>
+      <p class="text-(--text-secondary)">Defina e acompanhe seus objetivos.</p>
+    </div>
+    <button (click)="openCreate()"
+      class="flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 hover:scale-105 transition-all">
+      <span>+</span> Nova Meta
+    </button>
+  </header>
+
+  <!-- Loading / Empty -->
+  <div *ngIf="isLoading()" class="py-12 text-center text-(--text-secondary)">
+    Carregando metas...
+  </div>
+
+  <div *ngIf="!isLoading() && metas().length === 0"
+    class="py-16 text-center rounded-3xl border border-dashed border-(--border-subtle) bg-(--surface-strong)">
+    <div class="w-16 h-16 mx-auto mb-2 text-(--text-tertiary)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <circle cx="12" cy="12" r="6" />
+        <circle cx="12" cy="12" r="2" />
+      </svg>
+    </div>
+    <p class="text-(--text-secondary) font-medium">Nenhuma meta definida ainda.</p>
+    <button (click)="openCreate()" class="mt-4 text-emerald-500 font-semibold hover:underline">Criar minha primeira
+      meta</button>
+  </div>
+
+  <!-- Metas Grid -->
+  <div *ngIf="!isLoading() && metas().length > 0" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" @staggerList>
+    <div *ngFor="let meta of metas()"
+      class="group relative rounded-3xl bg-(--surface-strong) p-6 shadow-sm border border-(--border-subtle) hover:border-emerald-500/30 hover:shadow-md transition-all">
+
+      <!-- Top Actions -->
+      <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+        <button (click)="openEdit(meta)"
+          class="p-2 rounded-full hover:bg-(--surface-muted) text-(--text-tertiary) hover:text-(--text-primary)">✎</button>
+        <button (click)="delete(meta)"
+          class="p-2 rounded-full hover:bg-red-50 text-(--text-tertiary) hover:text-red-500">🗑️</button>
+      </div>
+
+      <!-- Icon & Title -->
+      <div class="mb-6">
+        <div
+          class="w-12 h-12 rounded-2xl bg-(--surface-muted) flex items-center justify-center text-(--text-secondary) mb-3">
+          <app-category-icon [name]="meta.categoria?.nome ?? ''" [size]="24"></app-category-icon>
+        </div>
+        <h3 class="font-bold text-lg text-(--text-primary)">{{ meta.nome }}</h3>
+        <p class="text-xs text-(--text-secondary)">Meta: {{ formatMoeda(meta.valorAlvo) }}</p>
+      </div>
+
+      <!-- Progress -->
+      <div class="mb-6">
+        <div class="flex justify-between text-sm mb-2">
+          <span class="font-semibold text-(--text-primary)">{{ meta.percentual }}%</span>
+          <span class="text-(--text-secondary)">{{ formatMoeda(meta.valorAtual) }}</span>
+        </div>
+        <div class="h-3 w-full bg-(--surface-muted) rounded-full overflow-hidden">
+          <div class="h-full rounded-full transition-all duration-700 relative overflow-hidden"
+            [class]="meta.colorClass" [style.width.%]="meta.percentual > 100 ? 100 : meta.percentual">
+            <!-- Shine effect -->
+            <div class="absolute inset-0 bg-white/20 translate-x-[-100%] animate-[shimmer_2s_infinite]"></div>
+          </div>
+        </div>
+        <p class="mt-2 text-xs text-(--text-tertiary)">Falta {{ formatMoeda(meta.restante) }}</p>
+      </div>
+
+      <!-- Footer Action -->
+      <button (click)="openContribute(meta)"
+        class="w-full py-2.5 rounded-xl border border-(--border-subtle) text-sm font-semibold text-(--text-secondary) hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 inline">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+        </svg> Contribuir
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Criar/Editar -->
+<div *ngIf="isModalOpen()" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" (click)="closeModal()"></div>
+  <div class="relative w-full max-w-md rounded-3xl bg-(--surface-strong) p-6 shadow-2xl animate-[fadeIn_0.2s_ease-out]">
+    <h2 class="text-xl font-bold mb-4 text-(--text-primary)">{{ editingMetaId() ? 'Editar Meta' : 'Nova Meta' }}</h2>
+
+    <form [formGroup]="form" (ngSubmit)="saveMeta()" class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold uppercase text-(--text-secondary) mb-1">Nome</label>
+        <input formControlName="nome" type="text" placeholder="Ex: Viagem, Carro novo..."
+          class="w-full rounded-xl border border-(--border-subtle) bg-(--surface) px-4 py-3 text-(--text-primary) outline-none focus:border-emerald-500">
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase text-(--text-secondary) mb-1">Valor Alvo</label>
+          <input formControlName="valorAlvo" type="number"
+            class="w-full rounded-xl border border-(--border-subtle) bg-(--surface) px-4 py-3 text-(--text-primary) outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-(--text-secondary) mb-1">Data Fim</label>
+          <input formControlName="dataFim" type="date"
+            class="w-full rounded-xl border border-(--border-subtle) bg-(--surface) px-4 py-3 text-(--text-primary) outline-none focus:border-emerald-500">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold uppercase text-(--text-secondary) mb-1">Categoria (Opcional)</label>
+        <select formControlName="categoriaId"
+          class="w-full rounded-xl border border-(--border-subtle) bg-(--surface) px-4 py-3 text-(--text-primary) outline-none focus:border-emerald-500">
+          <option [ngValue]="null">Sem Categoria</option>
+          <option *ngFor="let cat of categorias()" [value]="cat.id">{{ cat.nome }}</option>
+        </select>
+      </div>
+
+      <div class="flex gap-3 mt-6">
+        <button type="button" (click)="closeModal()"
+          class="flex-1 py-3 rounded-xl font-semibold text-(--text-secondary) hover:bg-(--surface-muted)">Cancelar</button>
+        <button type="submit" [disabled]="form.invalid || isSubmitting()"
+          class="flex-1 py-3 rounded-xl bg-emerald-500 font-semibold text-white hover:bg-emerald-600 disabled:opacity-50">
+          {{ isSubmitting() ? 'Salvando...' : 'Salvar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Contribuir -->
+<div *ngIf="isContributeModalOpen()" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" (click)="isContributeModalOpen.set(false)"></div>
+  <div class="relative w-full max-w-sm rounded-3xl bg-(--surface-strong) p-6 shadow-2xl animate-[fadeIn_0.2s_ease-out]">
+    <div class="text-center mb-6">
+      <div class="flex justify-center mb-2 text-(--text-secondary)">
+        <app-category-icon [name]="selectedMeta()?.categoria?.nome ?? ''" [size]="48"></app-category-icon>
+      </div>
+      <h2 class="text-xl font-bold text-(--text-primary)">Contribuir</h2>
+      <p class="text-sm text-(--text-secondary)">{{ selectedMeta()?.nome }}</p>
+    </div>
+
+    <form [formGroup]="contributeForm" (ngSubmit)="submitContribute()" class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold uppercase text-(--text-secondary) mb-1">Valor</label>
+        <input formControlName="valor" type="number" step="0.01" autoFocus
+          class="w-full text-center text-3xl font-bold rounded-xl border border-(--border-subtle) bg-(--surface) py-4 text-(--text-primary) outline-none focus:border-emerald-500">
+      </div>
+
+      <div class="flex gap-3 mt-6">
+        <button type="button" (click)="isContributeModalOpen.set(false)"
+          class="flex-1 py-3 rounded-xl font-semibold text-(--text-secondary) hover:bg-(--surface-muted)">Cancelar</button>
+        <button type="submit" [disabled]="contributeForm.invalid || isSubmitting()"
+          class="flex-1 py-3 rounded-xl bg-emerald-500 font-semibold text-white hover:bg-emerald-600 disabled:opacity-50">
+          Confirmar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

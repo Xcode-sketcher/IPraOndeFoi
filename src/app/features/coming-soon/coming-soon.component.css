@@ -1,0 +1,20 @@
+.card {
+  background: var(--surface-strong);
+  border-radius: 18px;
+  padding: 2rem;
+  box-shadow: var(--shadow-soft);
+}
+
+h2 {
+  margin-top: 0;
+}
+
+p {
+  color: var(--text-secondary);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}

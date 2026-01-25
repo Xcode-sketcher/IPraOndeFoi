@@ -1,0 +1,138 @@
+<div class="fade-in space-y-8" @fadeIn>
+  <!-- Header & Filters -->
+  <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-(--text-primary)">Orçamentos</h1>
+      <p class="text-(--text-secondary)">Planeje seus gastos mensais por categoria.</p>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <!-- Period Selector -->
+      <div
+        class="flex items-center gap-3 bg-(--surface-strong) p-2 rounded-2xl border border-(--border-subtle) shadow-sm">
+        <div class="flex flex-col px-2">
+          <label class="text-[10px] uppercase font-bold text-(--text-tertiary)">Mês</label>
+          <select [ngModel]="mes()" (ngModelChange)="onChangePeriodo($event, ano().toString())"
+            class="bg-transparent text-sm font-semibold text-(--text-primary) outline-none border-none p-0 cursor-pointer">
+            <option *ngFor="let m of [1,2,3,4,5,6,7,8,9,10,11,12]" [value]="m">{{ m }}</option>
+          </select>
+        </div>
+        <div class="h-8 w-[1px] bg-(--border-subtle)"></div>
+        <div class="flex flex-col px-2">
+          <label class="text-[10px] uppercase font-bold text-(--text-tertiary)">Ano</label>
+          <select [ngModel]="ano()" (ngModelChange)="onChangePeriodo(mes().toString(), $event)"
+            class="bg-transparent text-sm font-semibold text-(--text-primary) outline-none border-none p-0 cursor-pointer">
+            <option *ngFor="let y of [2023,2024,2025,2026]" [value]="y">{{ y }}</option>
+          </select>
+        </div>
+      </div>
+
+      <button (click)="openCreate()"
+        class="flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 hover:scale-105 transition-all">
+        <span>+</span> Novo Orçamento
+      </button>
+    </div>
+  </header>
+
+  <!-- Loading / Empty -->
+  <div *ngIf="isLoading()" class="py-12 text-center text-(--text-secondary)">
+    Carregando orçamentos...
+  </div>
+
+  <div *ngIf="!isLoading() && orcamentos().length === 0"
+    class="py-16 text-center rounded-3xl border border-dashed border-(--border-subtle) bg-(--surface-strong)">
+    <div class="w-16 h-16 mx-auto mb-2 text-(--text-tertiary)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+        <path d="M22 12A10 10 0 0 0 12 2v10z" />
+      </svg>
+    </div>
+    <p class="text-(--text-secondary) font-medium">Nenhum orçamento definido para este mês.</p>
+    <button (click)="openCreate()" class="mt-4 text-emerald-500 font-semibold hover:underline">Definir
+      orçamento</button>
+  </div>
+
+  <!-- Grid -->
+  <div *ngIf="!isLoading() && orcamentos().length > 0" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" @staggerList>
+    <div *ngFor="let item of orcamentos()"
+      class="group relative rounded-3xl bg-(--surface-strong) p-6 shadow-sm border border-(--border-subtle) hover:border-emerald-500/30 hover:shadow-md transition-all">
+
+      <!-- Actions -->
+      <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+        <button (click)="openEdit(item)"
+          class="p-2 rounded-full hover:bg-(--surface-muted) text-(--text-tertiary) hover:text-(--text-primary)">✎</button>
+        <button (click)="delete(item)"
+          class="p-2 rounded-full hover:bg-red-50 text-(--text-tertiary) hover:text-red-500">🗑️</button>
+      </div>
+
+      <!-- Content -->
+      <div class="flex items-start gap-4 mb-4">
+        <div
+          class="w-12 h-12 rounded-2xl bg-(--surface-muted) flex items-center justify-center text-(--text-secondary)">
+          <app-category-icon [name]="item.categoriaNome" [size]="24"></app-category-icon>
+        </div>
+        <div>
+          <h3 class="font-bold text-lg text-(--text-primary)">{{ item.categoriaNome }}</h3>
+          <p class="text-xs text-(--text-secondary)">Limite: {{ formatMoeda(item.limite) }}</p>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div>
+        <div class="flex justify-between text-sm mb-2">
+          <span class="font-semibold text-(--text-primary)">{{ item.percentual }}%</span>
+          <span class="text-(--text-secondary)">{{ formatMoeda(item.gasto) }}</span>
+        </div>
+        <div class="h-3 w-full bg-(--surface-muted) rounded-full overflow-hidden">
+          <div class="h-full rounded-full transition-all duration-700 relative overflow-hidden"
+            [class]="item.colorClass" [style.width.%]="item.percentual > 100 ? 100 : item.percentual">
+            <!-- Shine -->
+            <div class="absolute inset-0 bg-white/20 translate-x-[-100%] animate-[shimmer_2s_infinite]"></div>
+          </div>
+        </div>
+        <div class="flex justify-between mt-2">
+          <p class="text-xs text-(--text-tertiary)">Restante</p>
+          <p class="text-xs font-medium" [class.text-red-500]="item.restante === 0">{{ formatMoeda(item.restante) }}</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div *ngIf="isModalOpen()" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" (click)="closeModal()"></div>
+  <div class="relative w-full max-w-sm rounded-3xl bg-(--surface-strong) p-6 shadow-2xl animate-[fadeIn_0.2s_ease-out]">
+    <h2 class="text-xl font-bold mb-4 text-(--text-primary)">{{ editingId() ? 'Editar Orçamento' : 'Novo Orçamento' }}
+    </h2>
+
+    <form [formGroup]="form" (ngSubmit)="save()" class="space-y-4">
+
+      <div>
+        <label class="block text-xs font-semibold uppercase text-(--text-secondary) mb-1">Categoria</label>
+        <select formControlName="categoriaId"
+          class="w-full rounded-xl border border-(--border-subtle) bg-(--surface) px-4 py-3 text-(--text-primary) outline-none focus:border-emerald-500 disabled:opacity-50">
+          <option [ngValue]="null">Selecione uma categoria</option>
+          <option *ngFor="let cat of categorias()" [value]="cat.id">{{ cat.nome }}</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold uppercase text-(--text-secondary) mb-1">Limite Mensal</label>
+        <input formControlName="limite" type="number" step="10"
+          class="w-full rounded-xl border border-(--border-subtle) bg-(--surface) px-4 py-3 text-(--text-primary) outline-none focus:border-emerald-500">
+      </div>
+
+      <div class="flex gap-3 mt-6">
+        <button type="button" (click)="closeModal()"
+          class="flex-1 py-3 rounded-xl font-semibold text-(--text-secondary) hover:bg-(--surface-muted)">Cancelar</button>
+        <button type="submit" [disabled]="form.invalid || isSubmitting()"
+          class="flex-1 py-3 rounded-xl bg-emerald-500 font-semibold text-white hover:bg-emerald-600 disabled:opacity-50">
+          Salvar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

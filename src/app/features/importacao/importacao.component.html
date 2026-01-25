@@ -1,0 +1,53 @@
+<section
+  class="rounded-3xl border border-(--border-subtle) bg-(--surface-strong) px-6 py-8 shadow-(--shadow-soft)"
+>
+  <div class="space-y-2">
+    <p class="text-sm font-semibold uppercase tracking-[0.2em] text-(--text-secondary)">Importar</p>
+    <h2 class="text-2xl font-semibold text-(--text-primary) md:text-3xl">Importação de dados</h2>
+    <p class="max-w-2xl text-sm text-(--text-secondary)">
+      Faça upload de um CSV para carregar transações e históricos.
+    </p>
+  </div>
+</section>
+
+<section
+  class="mt-8 rounded-2xl border border-(--border-subtle) bg-(--surface-strong) p-6 shadow-(--shadow-soft)"
+>
+  <div class="space-y-4">
+    <input
+      type="file"
+      accept=".csv"
+      (change)="onFileChange($event)"
+      class="w-full rounded-xl border border-(--border-subtle) bg-(--surface) px-4 py-3 text-sm text-(--text-primary)"
+    />
+
+    <button
+      type="button"
+      (click)="enviar()"
+      [disabled]="isUploading()"
+      class="rounded-xl bg-(--accent) px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      @if (isUploading()) {
+        Enviando...
+      } @else {
+        Importar arquivo
+      }
+    </button>
+
+    @if (errorMessage()) {
+      <p
+        class="rounded-xl border border-(--danger) bg-(--surface-muted) px-4 py-3 text-sm text-(--danger)"
+      >
+        {{ errorMessage() }}
+      </p>
+    }
+
+    @if (successMessage()) {
+      <p
+        class="rounded-xl border border-(--success) bg-(--surface-muted) px-4 py-3 text-sm text-(--success)"
+      >
+        {{ successMessage() }}
+      </p>
+    }
+  </div>
+</section>

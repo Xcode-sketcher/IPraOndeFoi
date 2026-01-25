@@ -1,3 +1,358 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import "tailwindcss";
+@import 'tailwindcss';
+
+:root {
+  color-scheme: light dark;
+  font-family:
+    'Inter',
+    'Segoe UI',
+    system-ui,
+    -apple-system,
+    sans-serif;
+  --surface: #f6f7fb;
+  --surface-strong: #ffffff;
+  --surface-muted: #eef1f7;
+  --text-primary: #101828;
+  --text-secondary: #667085;
+  --border-subtle: #e4e7ec;
+  --accent: #4fc08d;
+  /* Vue-inspired green */
+  --accent-dark: #3daf7a;
+  --accent-light: #e8f5f0;
+  --secondary: #22c55e;
+  /* Green secondary */
+  --secondary-dark: #16a34a;
+  --secondary-light: #e6f9f2;
+  --danger: #ef4444;
+  --success: #12b981;
+  --warning: #f59e0b;
+  --shadow-soft: 0 20px 50px rgba(15, 23, 42, 0.08);
+  --gradient-primary: linear-gradient(135deg, #4fc08d, #3daf7a);
+  --gradient-secondary: linear-gradient(135deg, #22c55e, #16a34a);
+
+  --color-surface: var(--surface-strong);
+  --color-surface-hover: var(--surface-muted);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-border: var(--border-subtle);
+  --color-primary: var(--accent);
+  --color-primary-dark: var(--accent-dark);
+  --color-error: var(--danger);
+  --color-success: var(--success);
+  --color-success-light: #e6f9f2;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --surface: #0f172a;
+    --surface-strong: #111827;
+    --surface-muted: #1f2937;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5f5;
+    --border-subtle: #2d3748;
+    --accent: #34d399;
+    --accent-dark: #10b981;
+    --danger: #f87171;
+    --success: #34d399;
+    --shadow-soft: 0 25px 60px rgba(2, 6, 23, 0.45);
+    --color-success-light: rgba(52, 211, 153, 0.12);
+  }
+}
+
+/* Manual dark mode toggle */
+html.dark {
+  --surface: #0f172a;
+  --surface-strong: #111827;
+  --surface-muted: #1f2937;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5f5;
+  --border-subtle: #2d3748;
+  --accent: #34d399;
+  --accent-dark: #10b981;
+  --danger: #f87171;
+  --success: #34d399;
+  --shadow-soft: 0 25px 60px rgba(2, 6, 23, 0.45);
+  --color-success-light: rgba(52, 211, 153, 0.12);
+}
+
+html.dark body {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+  color: var(--text-primary);
+}
+
+input,
+select {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(76, 192, 141, 0.1);
+}
+
+/* Animação para labels flutuantes */
+.field {
+  position: relative;
+}
+
+.field label {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  transition: all 0.2s ease;
+  pointer-events: none;
+  color: var(--text-secondary);
+  background: var(--surface-strong);
+  padding: 0 0.25rem;
+}
+
+.field input:focus+label,
+.field select:focus+label,
+.field input:not(:placeholder-shown)+label,
+.field select:not([value=''])+label {
+  top: -0.5rem;
+  font-size: 0.75rem;
+  color: var(--color-primary);
+}
+
+.field input:hover,
+.field select:hover {
+  border-color: var(--color-primary);
+}
+
+.field input:invalid:not(:focus),
+.field select:invalid:not(:focus) {
+  border-color: var(--danger);
+}
+
+.field input:valid:not(:focus),
+.field select:valid:not(:focus) {
+  border-color: var(--success);
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-soft);
+}
+
+.transaction-item {
+  transition: background-color 0.2s ease;
+}
+
+.transaction-item:hover {
+  background-color: var(--surface-muted);
+}
+
+/* Animações de fade-in */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Button styles with gradients */
+.primary {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 192, 141, 0.3);
+}
+
+.secondary {
+  background: var(--gradient-secondary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.outline {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.outline:hover {
+  background: var(--surface-muted);
+  border-color: var(--accent);
+}
+
+/* Card variations */
+.card.positive {
+  border-left: 4px solid var(--success);
+  background: linear-gradient(135deg, rgba(18, 185, 129, 0.05), rgba(18, 185, 129, 0.02));
+}
+
+.card.negative {
+  border-left: 4px solid var(--danger);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(239, 68, 68, 0.02));
+}
+
+.card.neutral {
+  border-left: 4px solid var(--success);
+  background: linear-gradient(135deg, rgba(18, 185, 129, 0.05), rgba(18, 185, 129, 0.02));
+}
+
+/* Hero gradient */
+.hero-gradient {
+  background: linear-gradient(135deg, var(--accent-light), var(--secondary-light));
+  border: 1px solid rgba(79, 192, 141, 0.1);
+}
+
+/* Section gradients */
+.section-gradient {
+  background: linear-gradient(135deg, var(--surface-strong), rgba(79, 192, 141, 0.04));
+  border: 1px solid rgba(79, 192, 141, 0.12);
+  padding: 1rem;
+  border-radius: 12px;
+}
+
+.section-form .field {
+  position: relative;
+}
+
+.section-form .field label {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.6rem;
+  background: transparent;
+  padding: 0 0.25rem;
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
+  pointer-events: none;
+}
+
+.section-form .field select:focus+label,
+.section-form .field input:focus+label,
+.section-form .field input:not(:placeholder-shown)+label {
+  top: -0.5rem;
+  font-size: 0.75rem;
+  color: var(--color-primary);
+  background: var(--surface-strong);
+  padding: 0 4px;
+  border-radius: 4px;
+}
+
+.section-form input,
+.section-form select,
+.section-form textarea {
+  width: 100%;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--surface-strong);
+  /* White background for inputs */
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  appearance: none;
+}
+
+.section-form select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25rem;
+  padding-right: 2.5rem;
+}
+
+.section-form input:focus,
+.section-form select:focus,
+.section-form textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(79, 192, 141, 0.1);
+  outline: none;
+}
+
+/* Ensure the hero actions buttons are cohesive */
+.hero-actions .outline,
+.hero-actions .primary {
+  border-radius: 0.75rem;
+  padding: 0.6rem 1rem;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Add spacing inside category sections */
+.categories.section-gradient {
+  padding: 1rem;
+}
+
+.ai-highlight {
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(245, 158, 11, 0.08));
+  box-shadow: 0 12px 24px rgba(16, 185, 129, 0.12);
+}
+
+.ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.16);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}

@@ -1,0 +1,48 @@
+<div class="auth-layout">
+  <div class="card">
+    <header>
+      <p class="eyebrow">Crie sua conta</p>
+      <h1>Cadastro</h1>
+      <p class="subtitle">Comece a organizar suas finanças hoje.</p>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <label>
+        <span>E-mail</span>
+        <input type="email" formControlName="email" placeholder="voce@exemplo.com" />
+      </label>
+      @if (form.controls.email.touched && form.controls.email.invalid) {
+        <p class="error">Informe um e-mail válido.</p>
+      }
+
+      <label>
+        <span>Senha</span>
+        <input type="password" formControlName="password" placeholder="••••••••" />
+      </label>
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <p class="error">A senha deve ter pelo menos 6 caracteres.</p>
+      }
+
+      <button type="submit" [disabled]="isSubmitting()">
+        @if (isSubmitting()) {
+          Criando...
+        } @else {
+          Criar conta
+        }
+      </button>
+    </form>
+
+    @if (errorMessage()) {
+      <p class="error">{{ errorMessage() }}</p>
+    }
+
+    @if (successMessage()) {
+      <p class="success">{{ successMessage() }}</p>
+    }
+
+    <footer>
+      <p>Já tem conta?</p>
+      <a routerLink="/login">Entrar</a>
+    </footer>
+  </div>
+</div>

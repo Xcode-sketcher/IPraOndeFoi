@@ -1,0 +1,248 @@
+<div class="grid min-h-screen md:grid-cols-[280px_1fr]">
+
+  <!-- Mobile Bottom Nav -->
+  <nav
+    class="md:hidden fixed bottom-6 left-4 right-4 bg-(--surface-strong)/90 backdrop-blur-xl border border-(--border-subtle) rounded-2xl shadow-2xl z-50 flex justify-between px-6 py-3">
+    <a routerLink="/" routerLinkActive="text-emerald-500" [routerLinkActiveOptions]="{exact: true}"
+      class="flex flex-col items-center gap-1 text-(--text-tertiary) transition-colors group">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        class="stroke-[1.5] group-[.text-emerald-500]:stroke-2 transition-all">
+        <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+        <line x1="16" x2="16" y1="2" y2="6" />
+        <line x1="8" x2="8" y1="2" y2="6" />
+        <line x1="3" x2="21" y1="10" y2="10" />
+      </svg>
+      <span class="text-[10px] font-bold">Resumo</span>
+    </a>
+
+    <a routerLink="/dashboard" routerLinkActive="text-emerald-500"
+      class="flex flex-col items-center gap-1 text-(--text-tertiary) transition-colors group">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        class="stroke-[1.5] group-[.text-emerald-500]:stroke-2 transition-all">
+        <path d="M3 3v18h18" />
+        <path d="M18 17V9" />
+        <path d="M13 17V5" />
+        <path d="M8 17v-3" />
+      </svg>
+      <span class="text-[10px] font-bold">Dash</span>
+    </a>
+
+    <!-- Floating FAB in Middle -->
+    <div class="relative -top-8">
+      <a routerLink="/transacoes" routerLinkActive="scale-110 shadow-emerald-500/50"
+        class="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-400 to-cyan-500 text-white shadow-lg shadow-emerald-500/30 hover:scale-105 transition-all">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4" />
+          <path d="M4 6v12c0 1.1.9 2 2 2h14v-4" />
+          <path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z" />
+        </svg>
+      </a>
+    </div>
+
+    <a routerLink="/orcamentos" routerLinkActive="text-emerald-500"
+      class="flex flex-col items-center gap-1 text-(--text-tertiary) transition-colors group">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        class="stroke-[1.5] group-[.text-emerald-500]:stroke-2 transition-all">
+        <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+        <path d="M22 12A10 10 0 0 0 12 2v10z" />
+      </svg>
+      <span class="text-[10px] font-bold">Plan</span>
+    </a>
+
+    <button (click)="openSettings()"
+      class="flex flex-col items-center gap-1 text-(--text-tertiary) transition-colors group">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        class="stroke-[1.5] group-hover:rotate-90 transition-all">
+        <path
+          d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.35a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+        <circle cx="12" cy="12" r="3" />
+      </svg>
+      <span class="text-[10px] font-bold">Ajustes</span>
+    </button>
+  </nav>
+
+  <!-- Sidebar (Hidden on Mobile) -->
+  <aside
+    class="hidden md:flex flex-col bg-(--surface-strong) border-r border-(--border-subtle) h-screen sticky top-0 overflow-y-auto w-[280px]">
+
+    <!-- Brand -->
+    <div class="p-6 flex items-center gap-3 mb-2">
+      <!-- Logo Image -->
+      <img src="logo.png" alt="PraOndeFoi Logo"
+        class="w-10 h-10 rounded-xl object-cover shadow-lg shadow-emerald-500/20"
+        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+      <div
+        class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 shadow-lg shadow-emerald-500/20 items-center justify-center text-white font-bold text-lg hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" x2="12" y1="2" y2="22" />
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+        </svg>
+      </div>
+      <div>
+        <h1 class="font-bold text-(--text-primary) text-lg tracking-tight">PraOndeFoi</h1>
+        <p class="text-xs text-(--text-secondary) font-medium">Financeiro Premium</p>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="flex-1 px-4 space-y-1">
+
+      <!-- Section: Visão Geral -->
+      <div class="px-3 py-2 text-[10px] font-bold uppercase text-(--text-tertiary) tracking-wider">Visão Geral</div>
+
+      <!-- RESUMO MENSAL ADDED -->
+      <a routerLink="/" routerLinkActive="bg-emerald-500/10 text-emerald-600 shadow-sm"
+        [routerLinkActiveOptions]="{exact: true}"
+        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-(--text-secondary) hover:bg-(--surface-muted) hover:text-(--text-primary) transition-all group">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="text-(--text-tertiary) group-[.text-emerald-600]:text-emerald-600 transition-colors">
+          <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+          <line x1="16" x2="16" y1="2" y2="6" />
+          <line x1="8" x2="8" y1="2" y2="6" />
+          <line x1="3" x2="21" y1="10" y2="10" />
+        </svg>
+        Resumo Mensal
+      </a>
+
+      <!-- DASHBOARD -->
+      <a routerLink="/dashboard" routerLinkActive="bg-emerald-500/10 text-emerald-600 shadow-sm"
+        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-(--text-secondary) hover:bg-(--surface-muted) hover:text-(--text-primary) transition-all group">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="text-(--text-tertiary) group-[.text-emerald-600]:text-emerald-600 transition-colors">
+          <path d="M3 3v18h18" />
+          <path d="M18 17V9" />
+          <path d="M13 17V5" />
+          <path d="M8 17v-3" />
+        </svg>
+        Dashboard
+      </a>
+      <a routerLink="/transacoes" routerLinkActive="bg-emerald-500/10 text-emerald-600 shadow-sm"
+        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-(--text-secondary) hover:bg-(--surface-muted) hover:text-(--text-primary) transition-all group">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="text-(--text-tertiary) group-[.text-emerald-600]:text-emerald-600 transition-colors">
+          <path d="m9 11-6 6v3h9l3-3" />
+          <path d="m22 7-6-6" />
+          <path d="m13.7 5.7 2 2.3" />
+        </svg>
+        Transações
+      </a>
+
+      <!-- Section: Planejamento -->
+      <div class="px-3 py-2 mt-4 text-[10px] font-bold uppercase text-(--text-tertiary) tracking-wider">Planejamento
+      </div>
+
+      <a routerLink="/orcamentos" routerLinkActive="bg-emerald-500/10 text-emerald-600 shadow-sm"
+        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-(--text-secondary) hover:bg-(--surface-muted) hover:text-(--text-primary) transition-all group">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="text-(--text-tertiary) group-[.text-emerald-600]:text-emerald-600 transition-colors">
+          <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+          <path d="M22 12A10 10 0 0 0 12 2v10z" />
+        </svg>
+        Orçamentos
+      </a>
+      <a routerLink="/metas" routerLinkActive="bg-emerald-500/10 text-emerald-600 shadow-sm"
+        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-(--text-secondary) hover:bg-(--surface-muted) hover:text-(--text-primary) transition-all group">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="text-(--text-tertiary) group-[.text-emerald-600]:text-emerald-600 transition-colors">
+          <circle cx="12" cy="12" r="10" />
+          <circle cx="12" cy="12" r="6" />
+          <circle cx="12" cy="12" r="2" />
+        </svg>
+        Metas
+      </a>
+      <a routerLink="/recorrencias" routerLinkActive="bg-emerald-500/10 text-emerald-600 shadow-sm"
+        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-(--text-secondary) hover:bg-(--surface-muted) hover:text-(--text-primary) transition-all group">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="text-(--text-tertiary) group-[.text-emerald-600]:text-emerald-600 transition-colors">
+          <path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5" />
+          <path d="M16 2v4" />
+          <path d="M8 2v4" />
+          <path d="M3 10h18" />
+          <path d="M10 15v6" />
+          <path d="M13 15v6" />
+        </svg>
+        Agendamentos
+      </a>
+
+      <!-- Section: Dados -->
+      <div class="px-3 py-2 mt-4 text-[10px] font-bold uppercase text-(--text-tertiary) tracking-wider">Dados</div>
+
+      <a routerLink="/exportar" routerLinkActive="bg-emerald-500/10 text-emerald-600 shadow-sm"
+        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-(--text-secondary) hover:bg-(--surface-muted) hover:text-(--text-primary) transition-all group">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="text-(--text-tertiary) group-[.text-emerald-600]:text-emerald-600 transition-colors">
+          <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
+          <path d="M12 12v9" />
+          <path d="m16 16-4-4-4 4" />
+        </svg>
+        Exportar
+      </a>
+      <a routerLink="/importar" routerLinkActive="bg-emerald-500/10 text-emerald-600 shadow-sm"
+        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-(--text-secondary) hover:bg-(--surface-muted) hover:text-(--text-primary) transition-all group">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="text-(--text-tertiary) group-[.text-emerald-600]:text-emerald-600 transition-colors">
+          <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
+          <path d="M12 12v9" />
+          <path d="m8 17 4 4 4-4" />
+        </svg>
+        Importar
+      </a>
+    </nav>
+
+    <!-- Footer -->
+    <div class="p-4 border-t border-(--border-subtle)">
+      <button (click)="openSettings()"
+        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-(--text-secondary) hover:bg-(--surface-muted) hover:text-(--text-primary) transition-all group">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="text-(--text-tertiary) group-hover:text-(--text-primary) group-hover:rotate-90 transition-all">
+          <path
+            d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.35a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+        Configurações
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="flex flex-col h-screen overflow-hidden">
+
+    <header
+      class="md:hidden flex items-center justify-between p-4 bg-(--surface-strong) border-b border-(--border-subtle)">
+      <div class="font-bold text-lg text-(--text-primary)">PraOndeFoi</div>
+      <button (click)="openSettings()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="text-(--text-secondary)">
+          <path
+            d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.35a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      </button>
+    </header>
+
+    <main class="flex-1 overflow-y-auto p-4 md:p-8 relative">
+      <router-outlet></router-outlet>
+    </main>
+
+  </div>
+</div>
+
+@if (isSettingsOpen()) {
+<app-settings-modal (close)="closeSettings()" />
+}
