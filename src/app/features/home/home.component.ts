@@ -6,6 +6,7 @@ import { trigger, state, style, transition, animate, query, stagger } from '@ang
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { timeout, catchError, of } from 'rxjs';
+import { CategoryIconComponent } from '../../shared/components/category-icon/category-icon.component';
 
 type ResumoMensal = {
     saldoInicial?: number;
@@ -54,7 +55,7 @@ type Transacao = {
 
 @Component({
     selector: 'app-home',
-    imports: [RouterLink, FormsModule, CommonModule],
+    imports: [RouterLink, FormsModule, CommonModule, CategoryIconComponent],
     templateUrl: './home.component.html',
     styleUrl: './home.component.css',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -490,15 +491,5 @@ export class HomeComponent implements OnInit {
             return [list];
         }
         return [];
-    }
-
-    protected getEmoji(nome: string = ''): string {
-        const map: Record<string, string> = {
-            'Salário': '💰', 'Freelance': '💻', 'Aluguel': '🏠', 'Alimentação': '🍔',
-            'Transporte': '🚗', 'Saúde': '🏥', 'Educação': '📚', 'Lazer': '🎉',
-            'Investimentos': '📈', 'Assinaturas': '💳'
-        };
-        const key = Object.keys(map).find(k => nome?.includes(k));
-        return key ? map[key] : '🏷️';
     }
 }

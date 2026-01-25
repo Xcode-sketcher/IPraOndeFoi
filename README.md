@@ -1,59 +1,79 @@
-# Praondefoi
+# PraOndeFoi
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.1.
+**Para onde foi o seu dinheiro? Descubra com o PraOndeFoi.**
 
-## Development server
+O PraOndeFoi é uma aplicação moderna de controle financeiro projetada para lhe dar controle total sobre suas finanças. Pare de se perguntar para onde foi seu dinheiro suado e comece a direcioná-lo para seus objetivos. Com uma interface elegante e recursos poderosos, a clareza financeira está a apenas um clique de distância.
 
-To start a local development server, run:
 
-```bash
-ng serve
-```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+![Prévia do Dashboard](image-2.png)
 
-## Code scaffolding
+## Por que PraOndeFoi?
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Gerenciar finanças não deveria ser uma tarefa árdua. O PraOndeFoi transforma a tarefa tediosa de rastrear despesas em uma experiência esclarecedora.
 
-```bash
-ng generate component component-name
-```
+- **Clareza:** Visualize sua saúde financeira instantaneamente.
+- **Controle:** Defina orçamentos e acompanhe-os em tempo real.
+- **Crescimento:** Defina metas e acompanhe seu progresso.
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Principais Recursos
 
-```bash
-ng generate --help
-```
+### 1. Dashboard Interativo
+Tenha uma visão geral de alto nível de suas finanças. Veja suas receitas, despesas e saldo num piscar de olhos.
 
-## Building
+![Prévia do Dashboard](image.png)
+![Prévia do Dashboard](image-1.png)
 
-To build the project run:
+### 2. Rastreamento Inteligente de Transações
+Registre transações rapidamente e categorize-as sem esforço. Filtre, pesquise e analise seus hábitos de consumo.
 
-```bash
-ng build
-```
+### 3. Metas
+Sonhe alto e planeje para isso. Defina metas financeiras, acompanhe seu progresso e mantenha-se motivado.
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+### 4. Orçamentos
+Crie orçamentos para diferentes categorias. Receba alertas quando estiver perto de seus limites e ajuste seus gastos antes que seja tarde demais.
 
-## Running unit tests
+### 5. Importações e Exportações Perfeitas
+Seus dados pertencem a você. Importe facilmente extratos bancários e exporte seus relatórios para análise offline.
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+![Screenshot da Importação e Exportação](image-3.png)
 
-```bash
-ng test
-```
+## Começando
 
-## Running end-to-end tests
+### Pré-requisitos
+- Node.js
+- NPM
+- Angular CLI
 
-For end-to-end (e2e) testing, run:
+### Instalação
 
-```bash
-ng e2e
-```
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/Xcode-sketcher/IPraOndeFoi
+   ```
+2. Navegue até o diretório do projeto:
+   ```bash
+   cd praondefoi
+   ```
+3. Instale as dependências:
+   ```bash
+   npm install
+   ```
+4. Inicie o servidor de desenvolvimento:
+   ```bash
+   ng serve
+   ```
+5. Configure o back end seguindo os passos do seguinte repositório:
+    https://github.com/Xcode-sketcher/PraOndeFoi
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## Tecnologias Utilizadas
 
-## Additional Resources
+Construído com tecnologias de ponta para desempenho e escalabilidade.
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- **Angular v21:** Para uma interface de usuário responsiva e dinâmica.
+- **Tailwind CSS:** Para um design moderno e personalizado sem excessos.
+- **TypeScript:** Para um código robusto e de fácil manutenção.
+
+## Licença
+
+Este projeto está licenciado sob a Licença MIT.
