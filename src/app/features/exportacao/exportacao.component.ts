@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { finalize, catchError, of, timeout } from 'rxjs';
@@ -8,17 +9,61 @@ import { utils, writeFile } from 'xlsx';
 @Component({
     selector: 'app-exportacao',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, ReactiveFormsModule],
     templateUrl: './exportacao.component.html',
     styleUrls: ['./exportacao.component.css']
 })
 export class ExportacaoComponent {
     private api = inject(ApiService);
     private auth = inject(AuthService);
+    private fb = inject(FormBuilder);
 
     isExporting = signal(false);
     exportMessage = signal<string | null>(null);
     exportError = signal<string | null>(null);
+
+    filterForm = this.fb.group({
+        tipoFiltro: ['todos'],
+        dataInicio: [''],
+        dataFim: [''],
+        mes: [''],
+        ano: ['']
+    });
+
+    constructor() {
+        const hoje = new Date().toISOString().split('T')[0];
+        this.filterForm.patchValue({ dataFim: hoje });
+
+        const now = new Date();
+        this.filterForm.patchValue({
+            mes: String(now.getMonth() + 1).padStart(2, '0'),
+            ano: String(now.getFullYear())
+        });
+    }
+
+    get periodoDescricao(): string {
+        const filters = this.filterForm.value;
+
+        if (filters.tipoFiltro === 'todos') {
+            return 'Todas as transações';
+        } else if (filters.tipoFiltro === 'periodo') {
+            const inicio = filters.dataInicio ? this.formatarData(filters.dataInicio) : 'início';
+            const fim = filters.dataFim ? this.formatarData(filters.dataFim) : 'hoje';
+            return `Período: ${inicio} até ${fim}`;
+        } else if (filters.tipoFiltro === 'mes' && filters.mes && filters.ano) {
+            const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                          'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            const mesIdx = parseInt(filters.mes) - 1;
+            return `${meses[mesIdx]} de ${filters.ano}`;
+        }
+
+        return 'Período não definido';
+    }
+
+    private formatarData(dataIso: string): string {
+        const date = new Date(dataIso + 'T00:00:00');
+        return date.toLocaleDateString('pt-BR');
+    }
 
     exportar(formato: string) {
         if (this.isExporting()) return;
@@ -33,8 +78,31 @@ export class ExportacaoComponent {
         this.exportMessage.set(null);
         this.exportError.set(null);
 
-        // Fetch transactions data
-        this.api.getTransacoes({ contaId, limit: 1000 })
+
+        const filters = this.filterForm.value;
+        let inicio: string | undefined;
+        let fim: string | undefined;
+
+        if (filters.tipoFiltro === 'periodo') {
+
+            inicio = filters.dataInicio || undefined;
+            fim = filters.dataFim || undefined;
+        } else if (filters.tipoFiltro === 'mes') {
+            if (filters.mes && filters.ano) {
+                const mes = parseInt(filters.mes);
+                const ano = parseInt(filters.ano);
+                const dtInicio = new Date(ano, mes - 1, 1);
+                const dtFim = new Date(ano, mes, 0, 23, 59, 59);
+                inicio = dtInicio.toISOString().split('T')[0];
+                fim = dtFim.toISOString().split('T')[0];
+            }
+        }
+
+        const query: any = { contaId, limit: 10000 };
+        if (inicio) query.inicio = inicio;
+        if (fim) query.fim = fim;
+
+        this.api.getTransacoes(query)
             .pipe(
                 timeout(15000),
                 catchError(() => {
@@ -57,7 +125,7 @@ export class ExportacaoComponent {
                         } else if (formato === 'csv') {
                             this.exportToCsv(list);
                         } else if (formato === 'pdf') {
-                            this.exportToPdf();
+                            this.exportToPdf(inicio, fim);
                         }
                     } catch (err) {
                         this.exportError.set('Erro ao gerar arquivo de exportação.');
@@ -149,11 +217,11 @@ export class ExportacaoComponent {
         this.exportMessage.set('Arquivo CSV exportado com sucesso!');
     }
 
-    private exportToPdf() {
+    private exportToPdf(inicio?: string, fim?: string) {
         const contaId = this.auth.currentUser()?.contaId;
         if (!contaId) return;
 
-        this.api.exportar(contaId, 'pdf')
+        this.api.exportar(contaId, 'pdf', inicio, fim)
             .pipe(
                 timeout(15000),
                 catchError(() => of(null))
@@ -178,7 +246,6 @@ export class ExportacaoComponent {
 
     private isEntrada(tipo: any): boolean {
         const v = String(tipo).toLowerCase().trim();
-        // Handle: 1, '1', 'entrada', 'Entrada', 'receita', 'income'
         return tipo === 1 ||
                v === '1' ||
                v === 'entrada' ||

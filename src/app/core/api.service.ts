@@ -358,10 +358,18 @@ export class ApiService {
         return this.http.get<unknown>(`${API_BASE_URL}/api/financas/insights`, { params });
     }
 
-    exportar(contaId: number, formato: 'csv' | 'pdf') {
-        const params = new HttpParams()
+    exportar(contaId: number, formato: 'csv' | 'pdf', inicio?: string, fim?: string) {
+        let params = new HttpParams()
             .set('contaId', contaId.toString())
             .set('formato', formato);
+
+        if (inicio) {
+            params = params.set('inicio', inicio);
+        }
+        if (fim) {
+            params = params.set('fim', fim);
+        }
+
         return this.http.get(`${API_BASE_URL}/api/financas/exportar`, {
             params,
             responseType: 'blob'

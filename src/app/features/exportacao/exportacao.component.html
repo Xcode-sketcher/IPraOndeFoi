@@ -4,6 +4,94 @@
     <p class="text-(--text-secondary)">Baixe seus dados em diferentes formatos.</p>
   </header>
 
+  <!-- Filtros de Período -->
+  <div class="bg-(--surface-strong) rounded-3xl p-6 border border-(--border-subtle) shadow-sm">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-(--text-primary)">Período de Exportação</h2>
+      <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium">
+        {{ periodoDescricao }}
+      </span>
+    </div>
+    <form [formGroup]="filterForm" class="space-y-4">
+      <!-- Tipo de Filtro -->
+      <div>
+        <label class="block text-sm font-medium text-(--text-secondary) mb-2">Selecione o período</label>
+        <div class="grid md:grid-cols-3 gap-3">
+          <button type="button"
+            (click)="filterForm.patchValue({ tipoFiltro: 'todos' })"
+            [class.bg-emerald-500]="filterForm.value.tipoFiltro === 'todos'"
+            [class.text-white]="filterForm.value.tipoFiltro === 'todos'"
+            [class.bg-(--surface)]="filterForm.value.tipoFiltro !== 'todos'"
+            [class.text-(--text-primary)]="filterForm.value.tipoFiltro !== 'todos'"
+            class="px-4 py-3 rounded-xl border border-(--border-subtle) font-medium transition-all hover:scale-105">
+            Todas as Transações
+          </button>
+          <button type="button"
+            (click)="filterForm.patchValue({ tipoFiltro: 'periodo' })"
+            [class.bg-emerald-500]="filterForm.value.tipoFiltro === 'periodo'"
+            [class.text-white]="filterForm.value.tipoFiltro === 'periodo'"
+            [class.bg-(--surface)]="filterForm.value.tipoFiltro !== 'periodo'"
+            [class.text-(--text-primary)]="filterForm.value.tipoFiltro !== 'periodo'"
+            class="px-4 py-3 rounded-xl border border-(--border-subtle) font-medium transition-all hover:scale-105">
+            Período Customizado
+          </button>
+          <button type="button"
+            (click)="filterForm.patchValue({ tipoFiltro: 'mes' })"
+            [class.bg-emerald-500]="filterForm.value.tipoFiltro === 'mes'"
+            [class.text-white]="filterForm.value.tipoFiltro === 'mes'"
+            [class.bg-(--surface)]="filterForm.value.tipoFiltro !== 'mes'"
+            [class.text-(--text-primary)]="filterForm.value.tipoFiltro !== 'mes'"
+            class="px-4 py-3 rounded-xl border border-(--border-subtle) font-medium transition-all hover:scale-105">
+            Mês Específico
+          </button>
+        </div>
+      </div>
+
+      <!-- Período Customizado -->
+      <div *ngIf="filterForm.value.tipoFiltro === 'periodo'" class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase text-(--text-secondary) mb-2">Data Início</label>
+          <input formControlName="dataInicio" type="date"
+            class="w-full rounded-xl border border-(--border-subtle) bg-(--surface) px-4 py-3 text-(--text-primary) outline-none focus:border-emerald-500">
+          <p class="text-xs text-(--text-tertiary) mt-1">Deixe em branco para desde o início</p>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-(--text-secondary) mb-2">Data Fim</label>
+          <input formControlName="dataFim" type="date"
+            class="w-full rounded-xl border border-(--border-subtle) bg-(--surface) px-4 py-3 text-(--text-primary) outline-none focus:border-emerald-500">
+          <p class="text-xs text-(--text-tertiary) mt-1">Padrão: hoje</p>
+        </div>
+      </div>
+
+      <!-- Mês Específico -->
+      <div *ngIf="filterForm.value.tipoFiltro === 'mes'" class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase text-(--text-secondary) mb-2">Mês</label>
+          <select formControlName="mes"
+            class="w-full rounded-xl border border-(--border-subtle) bg-(--surface) px-4 py-3 text-(--text-primary) outline-none focus:border-emerald-500">
+            <option value="01">Janeiro</option>
+            <option value="02">Fevereiro</option>
+            <option value="03">Março</option>
+            <option value="04">Abril</option>
+            <option value="05">Maio</option>
+            <option value="06">Junho</option>
+            <option value="07">Julho</option>
+            <option value="08">Agosto</option>
+            <option value="09">Setembro</option>
+            <option value="10">Outubro</option>
+            <option value="11">Novembro</option>
+            <option value="12">Dezembro</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-(--text-secondary) mb-2">Ano</label>
+          <input formControlName="ano" type="number" min="2020" max="2030"
+            class="w-full rounded-xl border border-(--border-subtle) bg-(--surface) px-4 py-3 text-(--text-primary) outline-none focus:border-emerald-500">
+        </div>
+      </div>
+    </form>
+  </div>
+
   <!-- Success Message -->
   <div *ngIf="exportMessage()"
     class="p-4 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center gap-3">
