@@ -106,9 +106,6 @@ export class ExportacaoComponent {
         this.api.getTransacoes(query)
             .pipe(
                 timeout(15000),
-                catchError(() => {
-                    return of({ items: [] });
-                }),
                 finalize(() => this.isExporting.set(false))
             )
             .subscribe({
@@ -129,11 +126,13 @@ export class ExportacaoComponent {
                             this.exportToPdf(inicio, fim);
                         }
                     } catch (err) {
+                        console.error('Erro ao gerar arquivo:', err);
                         this.exportError.set('Erro ao gerar arquivo de exportação.');
                     }
                 },
                 error: (err) => {
-                    this.exportError.set('Erro ao buscar dados para exportação.');
+                    console.error('Erro ao buscar transações:', err);
+                    this.exportError.set(`Erro ao buscar dados: ${err?.error?.error || err?.message || 'Erro desconhecido'}`);
                 }
             });
     }
