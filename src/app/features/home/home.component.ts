@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } 
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { trigger, state, style, transition, animate, query, stagger } from '@angular/animations';
+import { trigger, style, transition, animate, query, stagger } from '@angular/animations';
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { timeout, catchError, of } from 'rxjs';
@@ -244,7 +244,7 @@ export class HomeComponent implements OnInit {
         this.buscarResumo();
     }
 
-    protected getCurrentSearchFilters() {
+    public getSearchFilters() {
         return this.lastSearchFilters;
     }
 
@@ -286,19 +286,19 @@ export class HomeComponent implements OnInit {
         if (this.searchOffset() === 0) {
             return;
         }
-        this.buscarTransacoes(this.getCurrentSearchFilters(), this.searchOffset() - this.searchLimit());
+        this.buscarTransacoes(this.getSearchFilters(), this.searchOffset() - this.searchLimit());
     }
 
     protected proximaPaginaBusca() {
         if (!this.searchHasNext()) {
             return;
         }
-        this.buscarTransacoes(this.getCurrentSearchFilters(), this.searchOffset() + this.searchLimit());
+        this.buscarTransacoes(this.getSearchFilters(), this.searchOffset() + this.searchLimit());
     }
 
     protected alterarLimiteBusca(limit: number) {
         this.searchLimit.set(Number(limit));
-        this.buscarTransacoes(this.getCurrentSearchFilters(), 0);
+        this.buscarTransacoes(this.getSearchFilters(), 0);
     }
 
     protected getPaginaAtualBusca() {
