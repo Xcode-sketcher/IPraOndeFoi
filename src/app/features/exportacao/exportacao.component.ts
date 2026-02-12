@@ -99,7 +99,7 @@ export class ExportacaoComponent {
             }
         }
 
-        const query: any = { contaId, limit: 10000 };
+        const query: any = { contaId, limit: 2000 };
         if (inicio) query.inicio = inicio;
         if (fim) query.fim = fim;
 
@@ -155,10 +155,10 @@ export class ExportacaoComponent {
             'Moeda': t.moeda || 'BRL'
         }));
 
-        // Create workbook with styling
+        // Ciar workbook com estilos
         const ws = utils.json_to_sheet(rows);
 
-        // Set column widths
+        // Definir largura das colunas
         ws['!cols'] = [
             { wch: 8 },   // ID
             { wch: 12 },  // Data
