@@ -156,19 +156,31 @@ export class DashboardComponent implements OnInit {
 
         const colors = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b'];
 
+        const itemsWithPercent = pizza.itens.map((item, i) => ({
+            ...item,
+            percent: Math.round((item.percentual ?? 0) * 100),
+            color: colors[i % colors.length]
+        }));
+
+        const totalPercent = itemsWithPercent.reduce((sum, item) => sum + item.percent, 0);
+        if (totalPercent !== 100 && itemsWithPercent.length > 0) {
+            const diff = 100 - totalPercent;
+            const maxIndex = itemsWithPercent.reduce((maxIdx, item, idx, arr) =>
+                item.percent > arr[maxIdx].percent ? idx : maxIdx, 0);
+            itemsWithPercent[maxIndex].percent += diff;
+        }
+
         let currentAngle = 0;
-        return pizza.itens.map((item, i) => {
-            const percent = Math.round((item.percentual ?? 0));
-            const color = colors[i % colors.length];
+        return itemsWithPercent.map((item) => {
             const slice = {
                 label: item.categoriaNome,
                 value: item.total,
-                percent,
-                color,
+                percent: item.percent,
+                color: item.color,
                 start: currentAngle,
-                end: currentAngle + percent
+                end: currentAngle + item.percent
             };
-            currentAngle += percent;
+            currentAngle += item.percent;
             return slice;
         });
     });
