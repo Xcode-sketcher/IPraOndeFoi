@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
-import { finalize, catchError, of, timeout } from 'rxjs';
+import { finalize, timeout, lastValueFrom } from 'rxjs';
 import { utils, writeFile } from 'xlsx';
 
 @Component({
@@ -78,61 +78,132 @@ export class ExportacaoComponent {
         this.exportMessage.set(null);
         this.exportError.set(null);
 
-
         const filters = this.filterForm.value;
+
+        // Para PDF, chamar método específico
+        if (formato === 'pdf') {
+            this.exportPdfWithFilters(contaId, filters);
+            return;
+        }
+
+        // Para Excel e CSV, buscar todas as transações com paginação
+        this.buscarTodasTransacoes(contaId, filters)
+            .then(transacoes => {
+                if (transacoes.length === 0) {
+                    this.exportError.set('Nenhuma transação encontrada para exportar.');
+                    this.isExporting.set(false);
+                    return;
+                }
+
+                try {
+                    if (formato === 'excel') {
+                        this.exportToExcel(transacoes);
+                    } else if (formato === 'csv') {
+                        this.exportToCsv(transacoes);
+                    }
+                } catch (err) {
+                    console.error('Erro ao gerar arquivo:', err);
+                    this.exportError.set('Erro ao gerar arquivo de exportação.');
+                }
+                this.isExporting.set(false);
+            })
+            .catch(err => {
+                console.error('Erro ao buscar transações:', err);
+                this.exportError.set(`Erro ao buscar dados: ${err?.error?.error || err?.message || 'Erro desconhecido'}`);
+                this.isExporting.set(false);
+            });
+    }
+
+    private async buscarTodasTransacoes(contaId: number, filters: any): Promise<any[]> {
+        const todasTransacoes: any[] = [];
+        const pageSize = 2000; // Máximo permitido pelo backend
+        let page = 1;
+        let hasMore = true;
+
+        // Construir query base
+        const getQuery = (pageNum: number) => {
+            const query: any = {
+                contaId,
+                page: pageNum,
+                pageSize
+            };
+
+            // Adicionar filtros de data se necessário
+            if (filters.tipoFiltro === 'periodo') {
+                if (filters.dataInicio) query.inicio = filters.dataInicio;
+                if (filters.dataFim) query.fim = filters.dataFim;
+            } else if (filters.tipoFiltro === 'mes' && filters.mes && filters.ano) {
+                const mes = parseInt(filters.mes);
+                const ano = parseInt(filters.ano);
+                const dtInicio = new Date(ano, mes - 1, 1);
+                const dtFim = new Date(ano, mes, 0);
+                query.inicio = dtInicio.toISOString().split('T')[0];
+                query.fim = dtFim.toISOString().split('T')[0];
+            }
+
+            return query;
+        };
+
+        // Buscar todas as páginas
+        while (hasMore) {
+            try {
+                const response: any = await lastValueFrom(
+                    this.api.getTransacoes(getQuery(page))
+                        .pipe(timeout(15000))
+                );
+
+                const transacoes = this.extractTransacoes(response);
+                todasTransacoes.push(...transacoes);
+
+                // Verificar se há mais páginas
+                const pagination = response?.pagination ?? response?.Pagination;
+                hasMore = pagination?.hasNext ?? pagination?.HasNext ?? false;
+                page++;
+
+            } catch (err) {
+                throw err;
+            }
+        }
+
+        return todasTransacoes;
+    }
+
+    private exportPdfWithFilters(contaId: number, filters: any) {
         let inicio: string | undefined;
         let fim: string | undefined;
 
         if (filters.tipoFiltro === 'periodo') {
-            // Enviar apenas YYYY-MM-DD, pois o backend pega apenas a parte da data
             inicio = filters.dataInicio || undefined;
             fim = filters.dataFim || undefined;
-        } else if (filters.tipoFiltro === 'mes') {
-            if (filters.mes && filters.ano) {
-                const mes = parseInt(filters.mes);
-                const ano = parseInt(filters.ano);
-                // Primeiro e último dia do mês em formato YYYY-MM-DD
-                const dtInicio = new Date(ano, mes - 1, 1);
-                const dtFim = new Date(ano, mes, 0);
-                inicio = dtInicio.toISOString().split('T')[0];
-                fim = dtFim.toISOString().split('T')[0];
-            }
+        } else if (filters.tipoFiltro === 'mes' && filters.mes && filters.ano) {
+            const mes = parseInt(filters.mes);
+            const ano = parseInt(filters.ano);
+            const dtInicio = new Date(ano, mes - 1, 1);
+            const dtFim = new Date(ano, mes, 0);
+            inicio = dtInicio.toISOString().split('T')[0];
+            fim = dtFim.toISOString().split('T')[0];
         }
 
-        const query: any = { contaId, limit: 2000 };
-        if (inicio) query.inicio = inicio;
-        if (fim) query.fim = fim;
-
-        this.api.getTransacoes(query)
+        this.api.exportar(contaId, 'pdf', inicio, fim)
             .pipe(
-                timeout(15000),
+                timeout(30000),
                 finalize(() => this.isExporting.set(false))
             )
             .subscribe({
-                next: (response: any) => {
-                    const list = this.extractTransacoes(response);
-
-                    if (list.length === 0) {
-                        this.exportError.set('Nenhuma transação encontrada para exportar.');
-                        return;
-                    }
-
-                    try {
-                        if (formato === 'excel') {
-                            this.exportToExcel(list);
-                        } else if (formato === 'csv') {
-                            this.exportToCsv(list);
-                        } else if (formato === 'pdf') {
-                            this.exportToPdf(inicio, fim);
-                        }
-                    } catch (err) {
-                        console.error('Erro ao gerar arquivo:', err);
-                        this.exportError.set('Erro ao gerar arquivo de exportação.');
+                next: (blob: any) => {
+                    if (blob && blob.size > 0) {
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(blob);
+                        link.download = `praondefoi_relatorio_${this.getDateString()}.pdf`;
+                        link.click();
+                        this.exportMessage.set('Relatório PDF exportado com sucesso!');
+                    } else {
+                        this.exportError.set('Exportação PDF não disponível no momento.');
                     }
                 },
                 error: (err) => {
-                    console.error('Erro ao buscar transações:', err);
-                    this.exportError.set(`Erro ao buscar dados: ${err?.error?.error || err?.message || 'Erro desconhecido'}`);
+                    console.error('Erro ao gerar PDF:', err);
+                    this.exportError.set('Erro ao gerar PDF. O backend pode não ter este recurso implementado.');
                 }
             });
     }
@@ -217,32 +288,6 @@ export class ExportacaoComponent {
         this.exportMessage.set('Arquivo CSV exportado com sucesso!');
     }
 
-    private exportToPdf(inicio?: string, fim?: string) {
-        const contaId = this.auth.currentUser()?.contaId;
-        if (!contaId) return;
-
-        this.api.exportar(contaId, 'pdf', inicio, fim)
-            .pipe(
-                timeout(15000),
-                catchError(() => of(null))
-            )
-            .subscribe({
-                next: (blob: any) => {
-                    if (blob && blob.size > 0) {
-                        const link = document.createElement('a');
-                        link.href = URL.createObjectURL(blob);
-                        link.download = `praondefoi_relatorio_${this.getDateString()}.pdf`;
-                        link.click();
-                        this.exportMessage.set('Relatório PDF exportado com sucesso!');
-                    } else {
-                        this.exportError.set('Exportação PDF não disponível no momento.');
-                    }
-                },
-                error: () => {
-                    this.exportError.set('Erro ao gerar PDF.');
-                }
-            });
-    }
 
     private isEntrada(tipo: any): boolean {
         const v = String(tipo).toLowerCase().trim();
