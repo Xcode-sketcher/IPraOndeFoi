@@ -84,15 +84,16 @@ export class ExportacaoComponent {
         let fim: string | undefined;
 
         if (filters.tipoFiltro === 'periodo') {
-
+            // Enviar apenas YYYY-MM-DD, pois o backend pega apenas a parte da data
             inicio = filters.dataInicio || undefined;
             fim = filters.dataFim || undefined;
         } else if (filters.tipoFiltro === 'mes') {
             if (filters.mes && filters.ano) {
                 const mes = parseInt(filters.mes);
                 const ano = parseInt(filters.ano);
+                // Primeiro e último dia do mês em formato YYYY-MM-DD
                 const dtInicio = new Date(ano, mes - 1, 1);
-                const dtFim = new Date(ano, mes, 0, 23, 59, 59);
+                const dtFim = new Date(ano, mes, 0);
                 inicio = dtInicio.toISOString().split('T')[0];
                 fim = dtFim.toISOString().split('T')[0];
             }
