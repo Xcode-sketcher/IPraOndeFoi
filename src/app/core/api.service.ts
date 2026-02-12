@@ -249,8 +249,18 @@ export class ApiService {
         return this.http.post<unknown>(`${API_BASE_URL}/api/financas/recorrencias`, payload);
     }
 
+    listarRecorrencias(contaId: number) {
+        const params = new HttpParams().set('contaId', contaId.toString());
+        return this.http.get<unknown>(`${API_BASE_URL}/api/financas/recorrencias`, { params });
+    }
+
     criarAssinatura(payload: CriarAssinaturaPayload) {
         return this.http.post<unknown>(`${API_BASE_URL}/api/financas/assinaturas`, payload);
+    }
+
+    listarAssinaturas(contaId: number) {
+        const params = new HttpParams().set('contaId', contaId.toString());
+        return this.http.get<unknown>(`${API_BASE_URL}/api/financas/assinaturas`, { params });
     }
 
     criarOrcamento(payload: CriarOrcamentoPayload) {
