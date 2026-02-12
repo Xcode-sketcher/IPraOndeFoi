@@ -203,8 +203,8 @@ export class DashboardComponent implements OnInit {
             .pipe(finalize(() => this.isLoading.set(false)))
             .subscribe({
                 next: (result) => {
-                    this.resumoData.set(result.resumo as ResumoMensalResponse);
-                    this.analiseData.set(result.analise as OrcamentoAnaliseResponse);
+                    this.resumoData.set(this.normalizeResumo(result.resumo));
+                    this.analiseData.set(this.normalizeAnalise(result.analise));
 
                     // Parse saldo
                     const rawSaldo = result.saldo as any;
@@ -213,11 +213,11 @@ export class DashboardComponent implements OnInit {
                     if (typeof rawSaldo === 'number') {
                         valSaldo = rawSaldo;
                     } else if (rawSaldo) {
-                        valSaldo = rawSaldo.saldo ?? rawSaldo.saldoAtual ?? rawSaldo.valor ?? rawSaldo.balance ?? 0;
+                        valSaldo = rawSaldo.saldo ?? rawSaldo.saldoAtual ?? rawSaldo.valor ?? rawSaldo.balance ?? rawSaldo.Saldo ?? 0;
                     }
 
-                    if (valSaldo === 0 && result.resumo) {
-                        const resumo = result.resumo as ResumoMensalResponse;
+                    if (valSaldo === 0 && this.resumoData()) {
+                        const resumo = this.resumoData()!;
                         valSaldo = (resumo.totalEntradas ?? 0) - (resumo.totalSaidas ?? 0);
                     }
 
@@ -226,7 +226,7 @@ export class DashboardComponent implements OnInit {
                     const rawTransacoes = result.transacoes as any;
                     const list = Array.isArray(rawTransacoes)
                         ? rawTransacoes
-                        : (rawTransacoes?.data || rawTransacoes?.items || []);
+                        : (rawTransacoes?.data || rawTransacoes?.Data || rawTransacoes?.items || rawTransacoes?.Items || []);
 
                     this.transacoes.set(list.map((t: any) => this.normalizeTransacao(t)));
                 },
@@ -242,18 +242,65 @@ export class DashboardComponent implements OnInit {
         this.refresh();
     }
 
-    private normalizeTransacao(t: any): Transacao {
-        const tipoRaw = String(t.tipo || '').toLowerCase();
-        const isEntrada = tipoRaw === '1' || tipoRaw === 'entrada';
+    private normalizeResumo(r: any): ResumoMensalResponse | null {
+        if (!r) return null;
+        return {
+            contaId: r.contaId ?? r.ContaId,
+            mes: r.mes ?? r.Mes,
+            ano: r.ano ?? r.Ano,
+            totalEntradas: Number(r.totalEntradas ?? r.TotalEntradas ?? 0),
+            totalSaidas: Number(r.totalSaidas ?? r.TotalSaidas ?? 0),
+            saldoMes: Number(r.saldoMes ?? r.SaldoMes ?? 0)
+        };
+    }
+
+    private normalizeAnalise(a: any): OrcamentoAnaliseResponse | null {
+        if (!a) return null;
+
+        const media = a.media ?? a.Media ?? {};
+        const orcamentosUsoPercentual = (a.orcamentosUsoPercentual ?? a.OrcamentosUsoPercentual ?? []).map((o: any) => ({
+            orcamentoId: o.orcamentoId ?? o.OrcamentoId,
+            categoriaId: o.categoriaId ?? o.CategoriaId,
+            categoriaNome: o.categoriaNome ?? o.CategoriaNome,
+            limite: Number(o.limite ?? o.Limite ?? 0),
+            gasto: Number(o.gasto ?? o.Gasto ?? 0),
+            percentualUso: Number(o.percentualUso ?? o.PercentualUso ?? 0)
+        }));
+
+        const pizza = a.distribuicaoPizza ?? a.DistribuicaoPizza ?? {};
+        const pizzaItens = (pizza.itens ?? pizza.Itens ?? []).map((i: any) => ({
+            categoriaId: i.categoriaId ?? i.CategoriaId,
+            categoriaNome: i.categoriaNome ?? i.CategoriaNome,
+            total: Number(i.total ?? i.Total ?? 0),
+            percentual: Number(i.percentual ?? i.Percentual ?? 0)
+        }));
 
         return {
-            id: t.id ?? t.transacaoId,
-            descricao: t.descricao ?? t.description ?? 'Sem descrição',
-            valor: Number(t.valor ?? t.value ?? 0),
+            media: {
+                mediaLimite: Number(media.mediaLimite ?? media.MediaLimite ?? 0),
+                mediaGasto: Number(media.mediaGasto ?? media.MediaGasto ?? 0),
+                mediaUsoPercentual: Number(media.mediaUsoPercentual ?? media.MediaUsoPercentual ?? 0)
+            },
+            orcamentosUsoPercentual,
+            distribuicaoPizza: {
+                totalGastos: Number(pizza.totalGastos ?? pizza.TotalGastos ?? 0),
+                itens: pizzaItens
+            }
+        };
+    }
+
+    private normalizeTransacao(t: any): Transacao {
+        const tipoRaw = String(t.tipo ?? t.Tipo ?? '').toLowerCase();
+        const isEntrada = tipoRaw === '1' || tipoRaw === 'entrada' || tipoRaw === 'receita';
+
+        return {
+            id: t.id ?? t.Id ?? t.transacaoId,
+            descricao: t.descricao ?? t.Descricao ?? t.description ?? 'Sem descrição',
+            valor: Number(t.valor ?? t.Valor ?? t.value ?? 0),
             tipo: isEntrada ? 'entrada' : 'saida',
-            data: t.data ?? t.dataTransacao ?? new Date().toISOString(),
-            categoriaNome: t.categoriaNome ?? t.categoria?.nome ?? 'Outros', // Populate categoriaNome
-            tags: Array.isArray(t.tags) ? t.tags.map((tag: any) => tag.nome ?? tag) : []
+            data: t.data ?? t.Data ?? t.dataTransacao ?? t.DataTransacao ?? new Date().toISOString(),
+            categoriaNome: t.categoriaNome ?? t.CategoriaNome ?? t.categoria?.nome ?? t.Categoria?.Nome ?? 'Outros',
+            tags: Array.isArray(t.tags ?? t.Tags) ? (t.tags ?? t.Tags).map((tag: any) => tag.nome ?? tag.Nome ?? tag) : []
         };
     }
 

@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiService, Categoria, Tag, TransacaoQuery } from '../../core/api.service';
@@ -124,30 +124,44 @@ export class TransactionsComponent implements OnInit {
             .pipe(finalize(() => this.isLoading.set(false)))
             .subscribe({
                 next: (response: any) => {
-                    const list = response?.data || response?.items || (Array.isArray(response) ? response : []);
-                    const meta = response?.pagination || {};
+                    const list = this.extractTransacoes(response);
+                    const meta = response?.pagination ?? response?.Pagination ?? {};
 
                     this.transacoes.set(list.map((t: any) => this.normalize(t)));
 
-                    if (meta.totalItems) this.totalItems.set(meta.totalItems);
-                    if (meta.totalPages) this.totalPages.set(meta.totalPages);
+                    const totalItems = meta.totalItems ?? meta.TotalItems;
+                    const totalPages = meta.totalPages ?? meta.TotalPages;
+
+                    if (typeof totalItems === 'number') this.totalItems.set(totalItems);
+                    if (typeof totalPages === 'number') this.totalPages.set(totalPages);
                 },
                 error: () => { }
             });
     }
 
+    private extractTransacoes(response: any): any[] {
+        if (Array.isArray(response)) return response;
+        const data = response?.data ?? response?.Data ?? response?.items ?? response?.Items;
+        return Array.isArray(data) ? data : [];
+    }
+
     normalize(t: any) {
-        const tipoRaw = String(t.tipo || '').toLowerCase();
-        const isEntrada = tipoRaw === '1' || tipoRaw === 'entrada';
+        const tipoRaw = String(t.tipo ?? t.Tipo ?? '').toLowerCase();
+        const isEntrada = tipoRaw === '1' || tipoRaw === 'entrada' || tipoRaw === 'receita';
+
+        const tagsRaw = t.tags ?? t.Tags ?? [];
+        const tags = Array.isArray(tagsRaw)
+            ? tagsRaw.map((tag: any) => ({ nome: tag?.nome ?? tag?.Nome ?? String(tag) }))
+            : [];
 
         return {
-            id: t.id ?? t.transacaoId,
-            descricao: t.descricao,
-            valor: Number(t.valor),
+            id: t.id ?? t.Id ?? t.transacaoId,
+            descricao: t.descricao ?? t.Descricao ?? t.description ?? t.Description,
+            valor: Number(t.valor ?? t.Valor ?? t.value ?? 0),
             tipo: isEntrada ? 'entrada' : 'saida',
-            data: t.dataTransacao ?? t.data,
-            categoriaNome: t.categoriaNome ?? t.categoria?.nome ?? 'Outros',
-            tags: Array.isArray(t.tags) ? t.tags : []
+            data: t.dataTransacao ?? t.DataTransacao ?? t.data ?? t.Data,
+            categoriaNome: t.categoriaNome ?? t.CategoriaNome ?? t.categoria?.nome ?? t.Categoria?.Nome ?? 'Outros',
+            tags
         };
     }
 

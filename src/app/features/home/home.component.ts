@@ -9,15 +9,22 @@ import { timeout, catchError, of } from 'rxjs';
 import { CategoryIconComponent } from '../../shared/components/category-icon/category-icon.component';
 
 type ResumoMensal = {
+    contaId?: number;
+    mes?: number;
+    ano?: number;
     saldoInicial?: number;
     saldoAtual?: number;
     saldoFinal?: number;
+    saldoMes?: number;
     totalEntradas?: number;
     totalSaidas?: number;
     entradas?: number;
     saidas?: number;
     totalReceitas?: number;
     totalDespesas?: number;
+    totalRecorrenteEntrada?: number;
+    totalRecorrenteSaida?: number;
+    totalAssinaturasSaida?: number;
     moeda?: string;
     categorias?: Array<{
         categoriaId?: number;
@@ -143,7 +150,7 @@ export class HomeComponent implements OnInit {
             catchError(() => of(null))
         ).subscribe({
             next: (resposta) => {
-                this.resumoMensal.set(resposta as ResumoMensal);
+                this.resumoMensal.set(this.normalizeResumo(resposta));
                 this.loading.set(false);
             },
             error: () => {
@@ -235,6 +242,10 @@ export class HomeComponent implements OnInit {
         this.mes.set(Number(mes));
         this.ano.set(Number(ano));
         this.buscarResumo();
+    }
+
+    protected getCurrentSearchFilters() {
+        return this.lastSearchFilters;
     }
 
     protected buscarTransacoes(
@@ -355,55 +366,63 @@ export class HomeComponent implements OnInit {
         return null;
     }
 
-    private parseTransacoesResponse(response: unknown) {
-        if (Array.isArray(response)) {
-            return { items: response.map((item) => this.normalizeTransacao(item)), total: undefined };
-        }
-        if (!response || typeof response !== 'object') {
-            return { items: [], total: undefined };
-        }
-        const data = response as Record<string, any>;
-        const list =
-            (Array.isArray(data['transacoes']) && data['transacoes']) ||
-            (Array.isArray(data['items']) && data['items']) ||
-            (Array.isArray(data['data']) && data['data']) ||
-            [];
-        const total =
-            (typeof data['total'] === 'number' && data['total']) ||
-            (typeof data['totalCount'] === 'number' && data['totalCount']) ||
-            (typeof data['count'] === 'number' && data['count']) ||
-            undefined;
-        return { items: (list as unknown[]).map((item) => this.normalizeTransacao(item)), total };
+    private normalizeResumo(r: any): ResumoMensal | null {
+        if (!r) return null;
+        return {
+            contaId: r.contaId ?? r.ContaId,
+            mes: r.mes ?? r.Mes,
+            ano: r.ano ?? r.Ano,
+            totalEntradas: Number(r.totalEntradas ?? r.TotalEntradas ?? 0),
+            totalSaidas: Number(r.totalSaidas ?? r.TotalSaidas ?? 0),
+            saldoMes: Number(r.saldoMes ?? r.SaldoMes ?? 0),
+            totalRecorrenteEntrada: Number(r.totalRecorrenteEntrada ?? r.TotalRecorrenteEntrada ?? 0),
+            totalRecorrenteSaida: Number(r.totalRecorrenteSaida ?? r.TotalRecorrenteSaida ?? 0),
+            totalAssinaturasSaida: Number(r.totalAssinaturasSaida ?? r.TotalAssinaturasSaida ?? 0),
+            moeda: r.moeda ?? r.Moeda ?? 'BRL'
+        };
     }
 
-    private getCurrentSearchFilters() {
-        return this.lastSearchFilters;
+    private parseTransacoesResponse(response: any): { items: Transacao[]; total: number | null } {
+        const data = response?.data ?? response?.Data ?? response?.items ?? response?.Items ?? (Array.isArray(response) ? response : []);
+        const total = response?.meta?.totalItems ?? response?.pagination?.totalItems ?? response?.Pagination?.TotalItems ?? null;
+        return {
+            items: Array.isArray(data) ? data.map(t => this.normalizeTransacao(t)) : [],
+            total
+        };
     }
 
     private normalizeTransacao(raw: unknown): Transacao {
         const item = (raw ?? {}) as Record<string, any>;
-        const tipoValue = item['tipo'] ?? item['type'];
+        const tipoValue = item['tipo'] ?? item['Tipo'] ?? item['type'];
         const tipo = this.parseTipo(tipoValue);
         const date =
             item['createdAt'] ||
             item['dataTransacao'] ||
+            item['DataTransacao'] ||
             item['data'] ||
+            item['Data'] ||
             item['created_at'] ||
             item['date'];
 
+        const tagsRaw = item['tags'] ?? item['Tags'] ?? item['tagNomes'];
+
         return {
-            id: Number(item['id'] ?? item['transacaoId'] ?? item['transacao_id'] ?? 0),
-            valor: Number(item['valor'] ?? item['value'] ?? 0),
-            descricao: item['descricao'] ?? item['description'] ?? '',
+            id: Number(item['id'] ?? item['Id'] ?? item['transacaoId'] ?? item['transacao_id'] ?? 0),
+            valor: Number(item['valor'] ?? item['Valor'] ?? item['value'] ?? 0),
+            descricao: item['descricao'] ?? item['Descricao'] ?? item['description'] ?? '',
             tipo,
             categoria:
                 item['categoria'] ||
-                (item['categoriaId']
-                    ? { id: Number(item['categoriaId']), nome: item['categoriaNome'] ?? 'Categoria' }
+                item['Categoria'] ||
+                (item['categoriaId'] || item['CategoriaId']
+                    ? {
+                        id: Number(item['categoriaId'] ?? item['CategoriaId']),
+                        nome: item['categoriaNome'] ?? item['CategoriaNome'] ?? 'Categoria'
+                    }
                     : undefined),
-            tags: this.normalizeTags(Array.isArray(item['tags']) ? item['tags'] : item['tagNomes'] ?? []),
-            data: item['data'] ?? item['dataTransacao'] ?? date ?? '',
-            createdAt: item['createdAt'] ?? item['dataTransacao'] ?? item['data'] ?? date ?? ''
+            tags: this.normalizeTags(Array.isArray(tagsRaw) ? tagsRaw : []),
+            data: item['data'] ?? item['Data'] ?? item['dataTransacao'] ?? item['DataTransacao'] ?? date ?? '',
+            createdAt: item['createdAt'] ?? item['dataTransacao'] ?? item['DataTransacao'] ?? item['data'] ?? item['Data'] ?? date ?? ''
         };
     }
 

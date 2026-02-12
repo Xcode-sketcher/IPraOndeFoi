@@ -44,7 +44,7 @@ export class ExportacaoComponent {
             )
             .subscribe({
                 next: (response: any) => {
-                    const list = response?.data || response?.items || (Array.isArray(response) ? response : []);
+                    const list = this.extractTransacoes(response);
 
                     if (list.length === 0) {
                         this.exportError.set('Nenhuma transação encontrada para exportar.');
@@ -67,6 +67,12 @@ export class ExportacaoComponent {
                     this.exportError.set('Erro ao buscar dados para exportação.');
                 }
             });
+    }
+
+    private extractTransacoes(response: any): any[] {
+        if (Array.isArray(response)) return response;
+        const data = response?.data ?? response?.Data ?? response?.items ?? response?.Items;
+        return Array.isArray(data) ? data : [];
     }
 
     private exportToExcel(data: any[]) {
