@@ -178,7 +178,12 @@ export class ExportacaoComponent {
 
     private isEntrada(tipo: any): boolean {
         const v = String(tipo).toLowerCase().trim();
-        return tipo === 1 || v === '1' || v === 'entrada' || v === 'receita';
+        // Handle: 1, '1', 'entrada', 'Entrada', 'receita', 'income'
+        return tipo === 1 ||
+               v === '1' ||
+               v === 'entrada' ||
+               v === 'receita' ||
+               v === 'income';
     }
 
     private getTipoLabel(tipo: any): string {

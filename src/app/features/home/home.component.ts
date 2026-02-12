@@ -428,9 +428,13 @@ export class HomeComponent implements OnInit {
 
     private parseTipo(value: any): 'entrada' | 'saida' {
         // API returns: 1 = entrada, 2 = saida
-        // Also handle string variants
+        // Also handle string variants: 'Entrada', 'entrada', 'Saida', 'saida'
         const v = String(value).toLowerCase().trim();
-        if (value === 1 || v === '1' || v === 'entrada' || v === 'receita' || v === 'income') {
+        if (value === 1 ||
+            v === '1' ||
+            v === 'entrada' ||
+            v === 'receita' ||
+            v === 'income') {
             return 'entrada';
         }
         // Default to saida for 2, 'saida', 'despesa', 'expense', or unknown

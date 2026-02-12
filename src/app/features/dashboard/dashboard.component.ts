@@ -290,8 +290,14 @@ export class DashboardComponent implements OnInit {
     }
 
     private normalizeTransacao(t: any): Transacao {
-        const tipoRaw = String(t.tipo ?? t.Tipo ?? '').toLowerCase();
-        const isEntrada = tipoRaw === '1' || tipoRaw === 'entrada' || tipoRaw === 'receita';
+        const tipoRaw = String(t.tipo ?? t.Tipo ?? '').toLowerCase().trim();
+        // Handle: 1, '1', 'entrada', 'Entrada', 'receita', 'income'
+        const isEntrada = tipoRaw === '1' ||
+                          tipoRaw === 'entrada' ||
+                          tipoRaw === 'receita' ||
+                          tipoRaw === 'income' ||
+                          t.tipo === 1 ||
+                          t.Tipo === 1;
 
         return {
             id: t.id ?? t.Id ?? t.transacaoId,
