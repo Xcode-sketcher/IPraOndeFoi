@@ -254,6 +254,10 @@ export class ApiService {
         return this.http.get<unknown>(`${API_BASE_URL}/api/financas/recorrencias`, { params });
     }
 
+    deletarRecorrencia(recorrenciaId: number) {
+        return this.http.delete<unknown>(`${API_BASE_URL}/api/financas/recorrencias/${recorrenciaId}`);
+    }
+
     criarAssinatura(payload: CriarAssinaturaPayload) {
         return this.http.post<unknown>(`${API_BASE_URL}/api/financas/assinaturas`, payload);
     }
@@ -261,6 +265,10 @@ export class ApiService {
     listarAssinaturas(contaId: number) {
         const params = new HttpParams().set('contaId', contaId.toString());
         return this.http.get<unknown>(`${API_BASE_URL}/api/financas/assinaturas`, { params });
+    }
+
+    deletarAssinatura(assinaturaId: number) {
+        return this.http.delete<unknown>(`${API_BASE_URL}/api/financas/assinaturas/${assinaturaId}`);
     }
 
     criarOrcamento(payload: CriarOrcamentoPayload) {

@@ -1,206 +1,248 @@
-<div class="fade-in space-y-8" @fadeIn>
+<div class="fade-in space-y-6 pb-24 md:pb-8" @fadeIn>
   <header>
     <h1 class="text-2xl font-bold text-(--text-primary)">Agendamentos</h1>
     <p class="text-(--text-secondary)">Configure transações automáticas e assinaturas.</p>
   </header>
 
-  <div class="grid lg:grid-cols-3 gap-8 items-start">
+  <!-- Tabs - Mobile Friendly -->
+  <div class="grid grid-cols-2 gap-2 sm:gap-4 p-1.5 bg-(--surface-strong) rounded-2xl sm:rounded-3xl border border-(--border-subtle)">
+    <button (click)="setTab('recorrencia')"
+      class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 py-3 sm:py-4 rounded-xl sm:rounded-2xl transition-all duration-300"
+      [class.bg-emerald-500]="activeTab() === 'recorrencia'" [class.text-white]="activeTab() === 'recorrencia'"
+      [class.text-(--text-secondary)]="activeTab() !== 'recorrencia'"
+      [class.hover:bg-(--surface-muted)]="activeTab() !== 'recorrencia'">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10" />
+        <polyline points="1 20 1 14 7 14" />
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+      </svg>
+      <span class="font-bold text-xs sm:text-sm">Recorrências</span>
+    </button>
 
-    <!-- Left Column: Tabs & Form -->
-    <div class="lg:col-span-2 space-y-8">
+    <button (click)="setTab('assinatura')"
+      class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 py-3 sm:py-4 rounded-xl sm:rounded-2xl transition-all duration-300"
+      [class.bg-amber-500]="activeTab() === 'assinatura'" [class.text-white]="activeTab() === 'assinatura'"
+      [class.text-(--text-secondary)]="activeTab() !== 'assinatura'"
+      [class.hover:bg-(--surface-muted)]="activeTab() !== 'assinatura'">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+        <path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z" />
+      </svg>
+      <span class="font-bold text-xs sm:text-sm">Assinaturas</span>
+    </button>
+  </div>
 
-      <!-- Large Tabs Segmented Control -->
-      <div class="grid grid-cols-2 gap-4 p-1.5 bg-(--surface-strong) rounded-3xl border border-(--border-subtle)">
-        <button (click)="setTab('recorrencia')"
-          class="flex items-center justify-center gap-3 py-4 rounded-2xl transition-all duration-300 relative overflow-hidden group"
-          [class.bg-emerald-500]="activeTab() === 'recorrencia'" [class.text-white]="activeTab() === 'recorrencia'"
-          [class.text-(--text-secondary)]="activeTab() !== 'recorrencia'"
-          [class.hover:bg-(--surface-muted)]="activeTab() !== 'recorrencia'">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="23 4 23 10 17 10" />
-            <polyline points="1 20 1 14 7 14" />
-            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-          </svg>
-          <div class="text-left">
-            <div class="font-bold text-sm leading-tight">Recorrência</div>
-            <div class="text-[10px] opacity-80 font-medium">Repetir transações</div>
+  <!-- Messages -->
+  <div *ngIf="successMessage()"
+    class="p-4 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+      <polyline points="22 4 12 14.01 9 11.01" />
+    </svg> {{ successMessage() }}
+  </div>
+  <div *ngIf="errorMessage()"
+    class="p-4 rounded-2xl bg-red-50 text-red-600 border border-red-100 flex items-center gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+      <line x1="12" x2="12" y1="9" y2="13" />
+      <line x1="12" x2="12.01" y1="17" y2="17" />
+    </svg> {{ errorMessage() }}
+  </div>
+
+  <!-- Content -->
+  <div class="grid lg:grid-cols-3 gap-6 items-start">
+
+    <!-- Left: List + Form -->
+    <div class="lg:col-span-2 space-y-6">
+
+      <!-- Recorrências Tab -->
+      <div *ngIf="activeTab() === 'recorrencia'" class="space-y-6">
+
+        <!-- Lista de Recorrências -->
+        <div class="card p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-(--surface-strong) border border-(--border-subtle) shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base sm:text-lg font-bold text-(--text-primary)">Minhas Recorrências</h2>
+            <button (click)="showRecorrenciaForm.set(!showRecorrenciaForm())"
+              class="px-3 py-2 rounded-xl bg-emerald-500 text-white text-sm font-bold hover:bg-emerald-600 transition-all flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              <span class="hidden sm:inline">Nova</span>
+            </button>
           </div>
-        </button>
 
-        <button (click)="setTab('assinatura')"
-          class="flex items-center justify-center gap-3 py-4 rounded-2xl transition-all duration-300 relative overflow-hidden group"
-          [class.bg-emerald-500]="activeTab() === 'assinatura'" [class.text-white]="activeTab() === 'assinatura'"
-          [class.text-(--text-secondary)]="activeTab() !== 'assinatura'"
-          [class.hover:bg-(--surface-muted)]="activeTab() !== 'assinatura'">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-            <path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z" />
-          </svg>
-          <div class="text-left">
-            <div class="font-bold text-sm leading-tight">Assinatura</div>
-            <div class="text-[10px] opacity-80 font-medium">Serviços mensais</div>
+          <div *ngIf="isLoadingRecorrencias()" class="flex justify-center py-8">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
           </div>
-        </button>
-      </div>
 
-      <!-- Content -->
-      <div class="relative min-h-[400px]">
+          <div *ngIf="!isLoadingRecorrencias()" class="space-y-3">
+            <div *ngIf="recorrencias().length === 0" class="text-center py-8 text-(--text-tertiary)">
+              <p>Nenhuma recorrência cadastrada</p>
+            </div>
 
-        <!-- Success/Error -->
-        <div *ngIf="successMessage()"
-          class="mb-6 p-4 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center gap-2 animate-[fadeIn_0.3s_ease-out]">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-            <polyline points="22 4 12 14.01 9 11.01" />
-          </svg> {{ successMessage() }}
-        </div>
-        <div *ngIf="errorMessage()"
-          class="mb-6 p-4 rounded-2xl bg-red-50 text-red-600 border border-red-100 flex items-center gap-2 animate-[fadeIn_0.3s_ease-out]">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-            <line x1="12" x2="12" y1="9" y2="13" />
-            <line x1="12" x2="12.01" y1="17" y2="17" />
-          </svg> {{ errorMessage() }}
-        </div>
-
-        <!-- Recorrencia Form -->
-        <div *ngIf="activeTab() === 'recorrencia'" class="animate-[fadeIn_0.3s_ease-out]">
-          <div class="card p-8 rounded-3xl bg-(--surface-strong) border border-(--border-subtle) shadow-sm">
-            <h2 class="text-lg font-bold text-(--text-primary) mb-6">Nova Recorrência</h2>
-
-            <form [formGroup]="recorrenciaForm" (ngSubmit)="submitRecorrencia()" class="space-y-5">
-
-              <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-1">
-                  <label class="block text-[10px] font-bold uppercase text-(--text-tertiary)">Tipo</label>
-                  <select formControlName="tipo"
-                    class="w-full h-12 rounded-xl border border-(--border-subtle) bg-(--surface) px-4 text-(--text-primary) outline-none focus:border-emerald-500 cursor-pointer">
-                    <option value="entrada">Entrada</option>
-                    <option value="saida">Saída</option>
-                  </select>
+            <div *ngFor="let rec of recorrencias()"
+              class="flex items-center justify-between p-3 sm:p-4 rounded-xl bg-(--surface) border border-(--border-subtle) hover:border-emerald-300 transition-all">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                  [class.bg-emerald-100]="rec.tipo === 1" [class.text-emerald-600]="rec.tipo === 1"
+                  [class.bg-red-100]="rec.tipo !== 1" [class.text-red-600]="rec.tipo !== 1">
+                  <span *ngIf="rec.tipo === 1">↑</span>
+                  <span *ngIf="rec.tipo !== 1">↓</span>
                 </div>
-                <div class="space-y-1">
-                  <label class="block text-[10px] font-bold uppercase text-(--text-tertiary)">Valor</label>
-                  <input formControlName="valor" type="number" step="0.01"
-                    class="w-full h-12 rounded-xl border border-(--border-subtle) bg-(--surface) px-4 text-(--text-primary) outline-none focus:border-emerald-500 font-medium">
+                <div class="min-w-0">
+                  <p class="font-semibold text-(--text-primary) truncate">{{ rec.descricao }}</p>
+                  <p class="text-xs text-(--text-secondary)">{{ rec.frequencia }} • {{ formatMoeda(rec.valor) }}</p>
                 </div>
               </div>
+              <button (click)="deletarRecorrencia(rec.id)" [disabled]="isDeletingRecorrencia()"
+                class="p-2 rounded-lg text-red-500 hover:bg-red-50 transition-colors shrink-0">
+                🗑️
+              </button>
+            </div>
+          </div>
+        </div>
 
+        <!-- Form Recorrência -->
+        <div *ngIf="showRecorrenciaForm()" class="card p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-(--surface-strong) border border-(--border-subtle) shadow-sm">
+          <h3 class="text-base font-bold text-(--text-primary) mb-4">Nova Recorrência</h3>
+          <form [formGroup]="recorrenciaForm" (ngSubmit)="submitRecorrencia()" class="space-y-4">
+            <div class="grid grid-cols-2 gap-3">
               <div class="space-y-1">
-                <label class="block text-[10px] font-bold uppercase text-(--text-tertiary)">Descrição</label>
-                <input formControlName="descricao" type="text" placeholder="Ex: Salário, Aluguel..."
-                  class="w-full h-12 rounded-xl border border-(--border-subtle) bg-(--surface) px-4 text-(--text-primary) outline-none focus:border-emerald-500">
+                <label class="block text-[10px] font-bold uppercase text-(--text-tertiary)">Tipo</label>
+                <select formControlName="tipo" class="w-full h-11 rounded-xl border border-(--border-subtle) bg-(--surface) px-3 text-(--text-primary) outline-none focus:border-emerald-500 text-sm">
+                  <option value="entrada">Entrada</option>
+                  <option value="saida">Saída</option>
+                </select>
               </div>
-
-              <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-1">
-                  <label class="block text-[10px] font-bold uppercase text-(--text-tertiary)">Categoria</label>
-                  <select formControlName="categoriaId"
-                    class="w-full h-12 rounded-xl border border-(--border-subtle) bg-(--surface) px-4 text-(--text-primary) outline-none focus:border-emerald-500 cursor-pointer">
-                    <option [ngValue]="null">Selecione</option>
-                    <option *ngFor="let cat of categorias()" [value]="cat.id">{{ cat.nome }}</option>
-                  </select>
-                </div>
-                <div class="space-y-1">
-                  <label class="block text-[10px] font-bold uppercase text-(--text-tertiary)">Início</label>
-                  <input formControlName="dataInicio" type="date"
-                    class="w-full h-12 rounded-xl border border-(--border-subtle) bg-(--surface) px-4 text-(--text-primary) outline-none focus:border-emerald-500">
-                </div>
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold uppercase text-(--text-tertiary)">Valor</label>
+                <input formControlName="valor" type="number" step="0.01" class="w-full h-11 rounded-xl border border-(--border-subtle) bg-(--surface) px-3 text-(--text-primary) outline-none focus:border-emerald-500 text-sm">
               </div>
-
+            </div>
+            <div class="space-y-1">
+              <label class="block text-[10px] font-bold uppercase text-(--text-tertiary)">Descrição</label>
+              <input formControlName="descricao" type="text" placeholder="Ex: Salário, Aluguel..." class="w-full h-11 rounded-xl border border-(--border-subtle) bg-(--surface) px-3 text-(--text-primary) outline-none focus:border-emerald-500 text-sm">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold uppercase text-(--text-tertiary)">Categoria</label>
+                <select formControlName="categoriaId" class="w-full h-11 rounded-xl border border-(--border-subtle) bg-(--surface) px-3 text-(--text-primary) outline-none focus:border-emerald-500 text-sm">
+                  <option [ngValue]="null">Selecione</option>
+                  <option *ngFor="let cat of categorias()" [value]="cat.id">{{ cat.nome }}</option>
+                </select>
+              </div>
               <div class="space-y-1">
                 <label class="block text-[10px] font-bold uppercase text-(--text-tertiary)">Frequência</label>
-                <select formControlName="frequencia"
-                  class="w-full h-12 rounded-xl border border-(--border-subtle) bg-(--surface) px-4 text-(--text-primary) outline-none focus:border-emerald-500 cursor-pointer">
+                <select formControlName="frequencia" class="w-full h-11 rounded-xl border border-(--border-subtle) bg-(--surface) px-3 text-(--text-primary) outline-none focus:border-emerald-500 text-sm">
                   <option value="Mensal">Mensal</option>
                   <option value="Semanal">Semanal</option>
                   <option value="Anual">Anual</option>
                 </select>
               </div>
-
-              <button type="submit" [disabled]="recorrenciaForm.invalid || isSubmitting()"
-                class="w-full py-4 rounded-2xl bg-emerald-500 font-bold text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:hover:scale-100 mt-4">
-                {{ isSubmitting() ? 'Agendando...' : 'Agendar Recorrência' }}
-              </button>
-            </form>
-          </div>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-[10px] font-bold uppercase text-(--text-tertiary)">Data Início</label>
+              <input formControlName="dataInicio" type="date" class="w-full h-11 rounded-xl border border-(--border-subtle) bg-(--surface) px-3 text-(--text-primary) outline-none focus:border-emerald-500 text-sm">
+            </div>
+            <div class="flex gap-3">
+              <button type="button" (click)="showRecorrenciaForm.set(false)" class="flex-1 py-3 rounded-xl border border-(--border-subtle) font-semibold text-(--text-secondary) hover:bg-(--surface-muted) transition-all text-sm">Cancelar</button>
+              <button type="submit" [disabled]="recorrenciaForm.invalid || isSubmitting()" class="flex-1 py-3 rounded-xl bg-emerald-500 font-bold text-white hover:bg-emerald-600 transition-all disabled:opacity-50 text-sm">{{ isSubmitting() ? 'Salvando...' : 'Salvar' }}</button>
+            </div>
+          </form>
         </div>
-
-        <!-- Assinatura Form -->
-        <div *ngIf="activeTab() === 'assinatura'" class="animate-[fadeIn_0.3s_ease-out]">
-          <div class="card p-8 rounded-3xl bg-(--surface-strong) border border-(--border-subtle) shadow-sm">
-            <h2 class="text-lg font-bold text-(--text-primary) mb-6">Nova Assinatura</h2>
-
-            <form [formGroup]="assinaturaForm" (ngSubmit)="submitAssinatura()" class="space-y-5">
-
-              <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-1">
-                  <label class="block text-[10px] font-bold uppercase text-(--text-tertiary)">Nome do Serviço</label>
-                  <input formControlName="nome" type="text" placeholder="Ex: Netflix..."
-                    class="w-full h-12 rounded-xl border border-(--border-subtle) bg-(--surface) px-4 text-(--text-primary) outline-none focus:border-emerald-500">
-                </div>
-                <div class="space-y-1">
-                  <label class="block text-[10px] font-bold uppercase text-(--text-tertiary)">Valor</label>
-                  <input formControlName="valor" type="number" step="0.01"
-                    class="w-full h-12 rounded-xl border border-(--border-subtle) bg-(--surface) px-4 text-(--text-primary) outline-none focus:border-emerald-500 font-medium">
-                </div>
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-1">
-                  <label class="block text-[10px] font-bold uppercase text-(--text-tertiary)">Categoria</label>
-                  <select formControlName="categoriaId"
-                    class="w-full h-12 rounded-xl border border-(--border-subtle) bg-(--surface) px-4 text-(--text-primary) outline-none focus:border-emerald-500 cursor-pointer">
-                    <option [ngValue]="null">Selecione</option>
-                    <option *ngFor="let cat of categorias()" [value]="cat.id">{{ cat.nome }}</option>
-                  </select>
-                </div>
-                <div class="space-y-1">
-                  <label class="block text-[10px] font-bold uppercase text-(--text-tertiary)">Data Início</label>
-                  <input formControlName="dataInicio" type="date"
-                    class="w-full h-12 rounded-xl border border-(--border-subtle) bg-(--surface) px-4 text-(--text-primary) outline-none focus:border-emerald-500">
-                </div>
-              </div>
-
-              <button type="submit" [disabled]="assinaturaForm.invalid || isSubmitting()"
-                class="w-full py-4 rounded-2xl bg-amber-500 font-bold text-white shadow-lg shadow-amber-500/20 hover:bg-amber-600 hover:scale-[1.02] transition-all disabled:opacity-50 disabled:hover:scale-100 mt-4">
-                {{ isSubmitting() ? 'Salvando...' : 'Adicionar Assinatura' }}
-              </button>
-            </form>
-          </div>
-        </div>
-
       </div>
+
+      <!-- Assinaturas Tab -->
+      <div *ngIf="activeTab() === 'assinatura'" class="space-y-6">
+
+        <div class="card p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-(--surface-strong) border border-(--border-subtle) shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base sm:text-lg font-bold text-(--text-primary)">Minhas Assinaturas</h2>
+            <button (click)="showAssinaturaForm.set(!showAssinaturaForm())" class="px-3 py-2 rounded-xl bg-amber-500 text-white text-sm font-bold hover:bg-amber-600 transition-all flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+              <span class="hidden sm:inline">Nova</span>
+            </button>
+          </div>
+
+          <div *ngIf="isLoadingAssinaturas()" class="flex justify-center py-8">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
+          </div>
+
+          <div *ngIf="!isLoadingAssinaturas()" class="space-y-3">
+            <div *ngIf="assinaturas().length === 0" class="text-center py-8 text-(--text-tertiary)">
+              <p>Nenhuma assinatura cadastrada</p>
+            </div>
+
+            <div *ngFor="let ass of assinaturas()" class="flex items-center justify-between p-3 sm:p-4 rounded-xl bg-(--surface) border border-(--border-subtle) hover:border-amber-300 transition-all">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">📋</div>
+                <div class="min-w-0">
+                  <p class="font-semibold text-(--text-primary) truncate">{{ ass.nome }}</p>
+                  <p class="text-xs text-(--text-secondary)">{{ ass.frequencia }} • {{ formatMoeda(ass.valor) }}</p>
+                </div>
+              </div>
+              <button (click)="deletarAssinatura(ass.id)" [disabled]="isDeletingAssinatura()" class="p-2 rounded-lg text-red-500 hover:bg-red-50 transition-colors shrink-0">🗑️</button>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="showAssinaturaForm()" class="card p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-(--surface-strong) border border-(--border-subtle) shadow-sm">
+          <h3 class="text-base font-bold text-(--text-primary) mb-4">Nova Assinatura</h3>
+          <form [formGroup]="assinaturaForm" (ngSubmit)="submitAssinatura()" class="space-y-4">
+            <div class="grid grid-cols-2 gap-3">
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold uppercase text-(--text-tertiary)">Nome</label>
+                <input formControlName="nome" type="text" placeholder="Ex: Netflix..." class="w-full h-11 rounded-xl border border-(--border-subtle) bg-(--surface) px-3 text-(--text-primary) outline-none focus:border-amber-500 text-sm">
+              </div>
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold uppercase text-(--text-tertiary)">Valor</label>
+                <input formControlName="valor" type="number" step="0.01" class="w-full h-11 rounded-xl border border-(--border-subtle) bg-(--surface) px-3 text-(--text-primary) outline-none focus:border-amber-500 text-sm">
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold uppercase text-(--text-tertiary)">Categoria</label>
+                <select formControlName="categoriaId" class="w-full h-11 rounded-xl border border-(--border-subtle) bg-(--surface) px-3 text-(--text-primary) outline-none focus:border-amber-500 text-sm">
+                  <option [ngValue]="null">Selecione</option>
+                  <option *ngFor="let cat of categorias()" [value]="cat.id">{{ cat.nome }}</option>
+                </select>
+              </div>
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold uppercase text-(--text-tertiary)">Frequência</label>
+                <select formControlName="frequencia" class="w-full h-11 rounded-xl border border-(--border-subtle) bg-(--surface) px-3 text-(--text-primary) outline-none focus:border-amber-500 text-sm">
+                  <option value="Mensal">Mensal</option>
+                  <option value="Semanal">Semanal</option>
+                  <option value="Anual">Anual</option>
+                </select>
+              </div>
+            </div>
+            <div class="space-y-1">
+              <label class="block text-[10px] font-bold uppercase text-(--text-tertiary)">Data Início</label>
+              <input formControlName="dataInicio" type="date" class="w-full h-11 rounded-xl border border-(--border-subtle) bg-(--surface) px-3 text-(--text-primary) outline-none focus:border-amber-500 text-sm">
+            </div>
+            <div class="flex gap-3">
+              <button type="button" (click)="showAssinaturaForm.set(false)" class="flex-1 py-3 rounded-xl border border-(--border-subtle) font-semibold text-(--text-secondary) hover:bg-(--surface-muted) transition-all text-sm">Cancelar</button>
+              <button type="submit" [disabled]="assinaturaForm.invalid || isSubmitting()" class="flex-1 py-3 rounded-xl bg-amber-500 font-bold text-white hover:bg-amber-600 transition-all disabled:opacity-50 text-sm">{{ isSubmitting() ? 'Salvando...' : 'Salvar' }}</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Right Column: Dynamic Calendar -->
-    <div class="card bg-(--surface-strong) border border-(--border-subtle) rounded-3xl p-6 shadow-sm h-fit">
-      <!-- Calendar Header with Navigation -->
+    <!-- Right: Calendar (hidden on mobile) -->
+    <div class="hidden lg:block card bg-(--surface-strong) border border-(--border-subtle) rounded-3xl p-6 shadow-sm h-fit">
       <div class="flex items-center justify-between mb-4">
-        <button (click)="prevMonth()"
-          class="p-2 rounded-lg hover:bg-(--surface-muted) text-(--text-secondary) transition-colors">
-          ◀
-        </button>
-        <h3 class="font-bold text-(--text-primary) flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect height="18" rx="2" ry="2" width="18" x="3" y="4" />
-            <line x1="16" x2="16" y1="2" y2="6" />
-            <line x1="8" x2="8" y1="2" y2="6" />
-            <line x1="3" x2="21" y1="10" y2="10" />
-          </svg> {{ calendarMonthName() }} {{ calendarYear() }}
-        </h3>
-        <button (click)="nextMonth()"
-          class="p-2 rounded-lg hover:bg-(--surface-muted) text-(--text-secondary) transition-colors">
-          ▶
-        </button>
+        <button (click)="prevMonth()" class="p-2 rounded-lg hover:bg-(--surface-muted) text-(--text-secondary) transition-colors">◀</button>
+        <h3 class="font-bold text-(--text-primary)">{{ calendarMonthName() }} {{ calendarYear() }}</h3>
+        <button (click)="nextMonth()" class="p-2 rounded-lg hover:bg-(--surface-muted) text-(--text-secondary) transition-colors">▶</button>
       </div>
-
-      <!-- Calendar Grid Header -->
       <div class="grid grid-cols-7 gap-1 text-center mb-2">
         <div class="text-[10px] font-bold text-(--text-tertiary)">D</div>
         <div class="text-[10px] font-bold text-(--text-tertiary)">S</div>
@@ -210,30 +252,12 @@
         <div class="text-[10px] font-bold text-(--text-tertiary)">S</div>
         <div class="text-[10px] font-bold text-(--text-tertiary)">S</div>
       </div>
-
-      <!-- Calendar Days Grid -->
       <div class="grid grid-cols-7 gap-1.5">
-        <!-- Empty slots for alignment -->
         <div *ngFor="let _ of calendarDays().emptySlots" class="aspect-square"></div>
-
-        <!-- Actual Days -->
-        <div *ngFor="let day of calendarDays().days"
-          class="aspect-square rounded-xl flex items-center justify-center text-xs font-medium cursor-default transition-all hover:bg-(--surface-muted)"
-          [class.bg-emerald-500]="isToday(day)" [class.text-white]="isToday(day)" [class.shadow-md]="isToday(day)"
-          [class.shadow-emerald-500/20]="isToday(day)" [class.bg-(--surface)]="!isToday(day)"
-          [class.text-(--text-primary)]="!isToday(day)">
-          {{ day }}
-        </div>
-      </div>
-
-      <div class="mt-4 pt-4 border-t border-(--border-subtle) space-y-2">
-        <p class="text-xs text-(--text-secondary) font-medium">Legenda:</p>
-        <div class="flex items-center gap-2">
-          <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
-          <span class="text-xs text-(--text-secondary)">Hoje</span>
-        </div>
+        <div *ngFor="let day of calendarDays().days" class="aspect-square rounded-xl flex items-center justify-center text-xs font-medium" [class.bg-emerald-500]="isToday(day)" [class.text-white]="isToday(day)" [class.bg-(--surface)]="!isToday(day)" [class.text-(--text-primary)]="!isToday(day)">{{ day }}</div>
       </div>
     </div>
 
   </div>
 </div>
+

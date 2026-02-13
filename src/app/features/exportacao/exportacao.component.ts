@@ -135,10 +135,11 @@ export class ExportacaoComponent {
             } else if (filters.tipoFiltro === 'mes' && filters.mes && filters.ano) {
                 const mes = parseInt(filters.mes);
                 const ano = parseInt(filters.ano);
-                const dtInicio = new Date(ano, mes - 1, 1);
-                const dtFim = new Date(ano, mes, 0);
-                query.inicio = dtInicio.toISOString().split('T')[0];
-                query.fim = dtFim.toISOString().split('T')[0];
+                // Usar formato direto YYYY-MM-DD sem conversão de timezone
+                const mesStr = mes.toString().padStart(2, '0');
+                const ultimoDia = new Date(ano, mes, 0).getDate();
+                query.inicio = `${ano}-${mesStr}-01`;
+                query.fim = `${ano}-${mesStr}-${ultimoDia.toString().padStart(2, '0')}`;
             }
 
             return query;
@@ -178,11 +179,14 @@ export class ExportacaoComponent {
         } else if (filters.tipoFiltro === 'mes' && filters.mes && filters.ano) {
             const mes = parseInt(filters.mes);
             const ano = parseInt(filters.ano);
-            const dtInicio = new Date(ano, mes - 1, 1);
-            const dtFim = new Date(ano, mes, 0);
-            inicio = dtInicio.toISOString().split('T')[0];
-            fim = dtFim.toISOString().split('T')[0];
+            // Usar formato direto YYYY-MM-DD sem conversão de timezone
+            const mesStr = mes.toString().padStart(2, '0');
+            const ultimoDia = new Date(ano, mes, 0).getDate();
+            inicio = `${ano}-${mesStr}-01`;
+            fim = `${ano}-${mesStr}-${ultimoDia.toString().padStart(2, '0')}`;
         }
+
+        console.log('Exportando PDF com filtros:', { inicio, fim });
 
         this.api.exportar(contaId, 'pdf', inicio, fim)
             .pipe(
