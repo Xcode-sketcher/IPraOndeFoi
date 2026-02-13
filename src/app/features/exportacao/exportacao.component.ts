@@ -190,11 +190,12 @@ export class ExportacaoComponent {
 
         this.api.exportar(contaId, 'pdf', inicio, fim)
             .pipe(
-                timeout(30000),
+                timeout(90000), // Aumentado para 90 segundos
                 finalize(() => this.isExporting.set(false))
             )
             .subscribe({
                 next: (blob: any) => {
+                    console.log('PDF recebido, tamanho:', blob?.size);
                     if (blob && blob.size > 0) {
                         const link = document.createElement('a');
                         link.href = URL.createObjectURL(blob);
@@ -207,7 +208,13 @@ export class ExportacaoComponent {
                 },
                 error: (err) => {
                     console.error('Erro ao gerar PDF:', err);
-                    this.exportError.set('Erro ao gerar PDF. O backend pode não ter este recurso implementado.');
+                    if (err.name === 'TimeoutError') {
+                        this.exportError.set('Timeout ao gerar PDF. O período selecionado tem muitas transações. Tente um período menor.');
+                    } else if (err.status === 400) {
+                        this.exportError.set(err.error?.error || 'Erro ao gerar PDF.');
+                    } else {
+                        this.exportError.set('Erro ao gerar PDF. Verifique sua conexão ou tente novamente.');
+                    }
                 }
             });
     }
